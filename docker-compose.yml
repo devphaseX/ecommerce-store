@@ -1,0 +1,24 @@
+version: '3.8'
+services:
+  dev-db:
+    image: postgres:15.2-alpine3.17
+    ports:
+      - 5438:5432
+    environment:
+      - POSTGRES_USER=breadit
+      - POSTGRES_PASSWORD=admin123
+      - POSTGRES_DB=breadit
+    networks:
+      - breaditDb
+  test-db:
+    image: postgres:15.2-alpine3.17
+    ports:
+      - 5438:5432
+    environment:
+      - POSTGRES_USER=breadit
+      - POSTGRES_PASSWORD=admin123
+      - POSTGRES_DB=breadit
+    networks:
+      - breaditDb
+networks:
+  breaditDb:
