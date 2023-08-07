@@ -14,27 +14,45 @@ import {
 } from '@/ui/form';
 import { Input } from '@/ui/input';
 import { Button } from '@/ui/button';
-
-const formSchema = object({
-  name: string().nonempty({ message: 'Please provide a name for the store' }),
-});
-
-export type CreateStoreFormPayload = TypeOf<typeof formSchema>;
+import { useMutation } from '@tanstack/react-query';
+import axios, { AxiosError } from 'axios';
+import { toast } from 'react-hot-toast';
+import { Stores } from '@/schema/store';
+import {
+  CreateStoreFormPayload,
+  createStoreFormSchema,
+} from '../../validators/create-store';
 
 export const StoreModal = () => {
   const { isOpen, onClose, onOpen } = useStoreModal();
   const form = useForm<CreateStoreFormPayload>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(createStoreFormSchema),
     defaultValues: {
       name: '',
     },
   });
 
-  const onSubmit = form.handleSubmit(async function submitCreateStoreForm(
-    formValues
-  ) {
-    //Create store
-    console.log({ formValues });
+  const { isLoading, mutate: createStore } = useMutation({
+    mutationFn: async (data: CreateStoreFormPayload) => {
+      const response = await axios.post<Stores>('/api/stores', data);
+      return response.data;
+    },
+
+    onSuccess: () => {
+      toast.success('Stored created');
+    },
+
+    onError: (error) => {
+      if (error instanceof AxiosError && error.response?.status) {
+        return toast.error(error.response.data);
+      }
+
+      toast.error('Something went wrong while creating store');
+    },
+  });
+
+  const onSubmit = form.handleSubmit(async (formValues) => {
+    createStore(formValues);
   });
 
   return (
@@ -55,17 +73,23 @@ export const StoreModal = () => {
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="E-commerce" {...field} />
+                      <Input
+                        disabled={isLoading}
+                        placeholder="E-commerce"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <div className="pt-6 space-x-2 flex items-center justify-end w-full">
-                <Button variant="ghost" onClick={onClose}>
+                <Button disabled={isLoading} variant="ghost" onClick={onClose}>
                   Cancel
                 </Button>
-                <Button type="submit">Continue</Button>
+                <Button disabled={isLoading} type="submit">
+                  Continue
+                </Button>
               </div>
             </form>
           </Form>
