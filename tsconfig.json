@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es6",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -21,11 +21,13 @@
     ],
     "rootDir": "./",
     "paths": {
-      "@/*": ["./"],
+      "@/config/*": ["./config/*"],
       "@/lib/*": ["./lib/*"],
       "@/components/*": ["./components/*"],
       "@/ui/*": ["./components/ui/*"],
-      "@/hooks/*": ["./hooks/*"]
+      "@/hooks/*": ["./hooks/*"],
+      "@/schema/*": ["./schema/*"],
+      "@/*": ["./"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
