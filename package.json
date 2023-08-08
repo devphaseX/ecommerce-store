@@ -7,7 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "generate": "drizzle-kit generate:pg --schema=./schema/index.ts",
+    "generate": "drizzle-kit generate:pg",
+    "db:drop": "drizzle-kit drop",
+    "db:reset": "tsx -r tsconfig-paths/register ./config/db/neon/clearDb.ts",
+    "db:migrate": "drizzle-kit migrate",
     "migrate": "tsx -r tsconfig-paths/register ./config/db/neon/migrate.ts"
   },
   "dependencies": {
@@ -16,6 +19,8 @@
     "@neondatabase/serverless": "^0.5.6",
     "@radix-ui/react-dialog": "^1.0.4",
     "@radix-ui/react-label": "^2.0.2",
+    "@radix-ui/react-popover": "^1.0.6",
+    "@radix-ui/react-separator": "^1.0.3",
     "@radix-ui/react-slot": "^1.0.2",
     "@tanstack/react-query": "^4.32.6",
     "@types/node": "20.3.3",
@@ -25,6 +30,7 @@
     "axios": "^1.4.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
+    "cmdk": "^0.2.0",
     "dotenv": "^16.3.1",
     "drizzle-orm": "^0.27.2",
     "http-status": "^1.6.2",

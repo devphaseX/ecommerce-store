@@ -22,6 +22,7 @@ import {
   CreateStoreFormPayload,
   createStoreFormSchema,
 } from '../../validators/create-store';
+import { useIsClient } from 'usehooks-ts';
 
 export const StoreModal = () => {
   const { isOpen, onClose, onOpen } = useStoreModal();
@@ -32,17 +33,22 @@ export const StoreModal = () => {
     },
   });
 
+  const isClientSide = useIsClient();
+
   const { isLoading, mutate: createStore } = useMutation({
     mutationFn: async (data: CreateStoreFormPayload) => {
       const response = await axios.post<Stores>('/api/stores', data);
       return response.data;
     },
 
-    onSuccess: () => {
-      toast.success('Stored created');
+    onSuccess: ({ id: storeId }) => {
+      if (!isClientSide) return;
+      window.location.assign(`/${storeId}`);
     },
 
     onError: (error) => {
+      if (!isClientSide) return;
+
       if (error instanceof AxiosError && error.response?.status) {
         return toast.error(error.response.data);
       }
