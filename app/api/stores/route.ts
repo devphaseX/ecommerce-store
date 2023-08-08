@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
   try {
     const { userId } = auth();
     if (!userId) {
-      return new NextResponse('Unauthorized', { status: 401 });
+      return new NextResponse('Unauthenicated', { status: 401 });
     }
     const payload = createStoreFormSchema.parse(await req.json());
 
@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
       return new NextResponse('Store already exist', { status: CONFLICT });
     }
 
-    const store = await db
+    const [store] = await db
       .insert(stores)
       .values({ name: payload.name, userId })
       .returning();
