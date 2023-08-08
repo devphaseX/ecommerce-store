@@ -16,5 +16,3 @@ migrate(db, { migrationsFolder: 'drizzle' })
     console.log('something went wrong while migrating');
     console.log(e);
   });
-
-export { db };

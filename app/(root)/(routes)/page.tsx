@@ -11,5 +11,5 @@ export default function SetupPage() {
     if (!isOpen) onOpen();
   }, [isOpen, onOpen]);
 
-  return <div></div>;
+  return null;
 }

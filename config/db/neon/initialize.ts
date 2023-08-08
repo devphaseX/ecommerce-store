@@ -1,9 +1,12 @@
-import { Pool } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-serverless';
+import { migrate } from 'drizzle-orm/neon-http/migrator';
 import { parsedEnv } from '../../env';
+import { neon, neonConfig } from '@neondatabase/serverless';
+import { drizzle } from 'drizzle-orm/neon-http';
 import * as schema from '@/schema/index';
 
-const pool = new Pool({ connectionString: parsedEnv.DATABASE_URL });
-const db = drizzle(pool, { schema });
+neonConfig.fetchConnectionCache = true;
+
+const postgres = neon(parsedEnv.DATABASE_URL!);
+const db = drizzle(postgres, { schema });
 
 export { db };
