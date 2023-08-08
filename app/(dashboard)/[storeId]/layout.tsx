@@ -1,11 +1,13 @@
 import { auth } from '@clerk/nextjs';
-import { LayoutProps } from '../../../.next/types/app/(root)/page';
 import { redirect } from 'next/navigation';
 import { db } from '@/config/db/neon/initialize';
-import { eq, sql } from 'drizzle-orm';
+import { sql } from 'drizzle-orm';
 import { stores } from '@/schema/store';
+import { Navbar } from '@/components/Navbar';
 
-interface DashboardLayoutProps extends LayoutProps {
+export type DashboardLayoutParams = { storeId: string };
+
+interface DashboardLayoutProps extends LayoutPageBaseProps {
   params: { storeId: string };
 }
 
@@ -24,7 +26,7 @@ export default async function DashboardLayout({
 
   return (
     <>
-      <div>This will be a Navbar</div>
+      <Navbar />
       {children}
     </>
   );
