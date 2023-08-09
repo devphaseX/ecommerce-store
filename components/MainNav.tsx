@@ -8,20 +8,39 @@ import { DashboardLayoutParams } from '@/app/(dashboard)/[storeId]/layout';
 import Link from 'next/link';
 interface MainNavProps extends React.HTMLAttributes<HTMLElement> {}
 
+function createInternalRoute(
+  href: string,
+  label: string,
+  getActivePath: () => string
+): InternalRoute {
+  return {
+    href,
+    label,
+    active: () => {
+      return href === getActivePath();
+    },
+  };
+}
+
 type InternalRoute = { href: string; label: string; active(): boolean };
 export const MainNav: FC<MainNavProps> = ({ className, ...props }) => {
   const pathname = usePathname();
   const params = useParams() as DashboardLayoutParams;
 
-  const routes = [
-    {
-      href: `/${params.storeId}/settings`,
-      label: 'Settings',
-      active() {
-        return this.href === pathname;
-      },
-    },
-  ] as const satisfies readonly InternalRoute[];
+  const getActivePath = () => pathname;
+
+  const routes: Array<InternalRoute> = [
+    createInternalRoute(
+      `/${params.storeId}/settings`,
+      'Settings',
+      getActivePath
+    ),
+    createInternalRoute(
+      `/${params.storeId}/overviews`,
+      'Overview',
+      getActivePath
+    ),
+  ];
 
   return (
     <nav
