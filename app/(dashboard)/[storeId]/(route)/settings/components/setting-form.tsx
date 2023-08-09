@@ -28,6 +28,8 @@ import {
   settingsFormSchema,
 } from '@/validators/setting-form';
 import { AlertModal } from '@/components/models/alert-modal';
+import { ApiAlert } from '@/components/ui/api-alert';
+import { useOrigin } from '@/hooks/use-origin';
 
 interface SettingsFormProps {
   store: Stores;
@@ -42,6 +44,7 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({ store }) => {
   const { storeId } = useParams() as DashboardLayoutParams;
   const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
   const router = useRouter();
+  const origin = useOrigin();
 
   if (store.id !== storeId) {
     router.refresh();
@@ -83,7 +86,13 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({ store }) => {
 
   const { mutate: deleteStore, isLoading: storeDeleting } = useMutation({
     mutationFn: () => axios.delete(`/api/stores/${storeId}`),
-    onSuccess: () => router.push('/'),
+    onSuccess: () => {
+      toast.success('Store deleted');
+      setTimeout(() => {
+        router.push('/');
+        router.refresh();
+      }, 50);
+    },
     onError: (error) => {
       if (error instanceof AxiosError) {
         if (error.response?.status === BAD_REQUEST) {
@@ -98,9 +107,11 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({ store }) => {
 
       toast.error('Something went wrong while removing store');
     },
-  });
 
-  console.log({ deleteAlertOpen });
+    onSettled: () => {
+      setDeleteAlertOpen(true);
+    },
+  });
 
   return (
     <>
@@ -159,6 +170,11 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({ store }) => {
           </Button>
         </form>
       </Form>
+      <Separator />
+      <ApiAlert
+        title="NEXT_PUBLIC_API_URL"
+        description={`${origin ?? ''}/api/${storeId}`}
+      />
     </>
   );
 };
