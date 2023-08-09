@@ -8,7 +8,7 @@ export const ModalProvider = () => {
   const isMounted = useIsMounted();
   const storeModal = useStoreModal();
 
-  if (!isMounted() && storeModal.isOpen) return null;
+  if (!isMounted() && !storeModal.isOpen) return null;
   return (
     <>
       <StoreModal />
