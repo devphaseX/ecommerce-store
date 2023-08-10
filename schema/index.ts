@@ -1,2 +1,3 @@
 export * from './order';
 export * from './store';
+export * from './bill-board';
