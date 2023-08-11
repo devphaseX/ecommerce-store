@@ -5,6 +5,7 @@ declare global {
   }
 
   type PageBaseProps = Omit<LayoutPageBaseProps, 'children'>;
+  type Expand<T extends object> = { [K in keyof T]: T[K] };
 }
 
 export {};

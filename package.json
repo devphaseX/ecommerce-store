@@ -7,11 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "generate": "drizzle-kit generate:pg",
+    "db:generate": "drizzle-kit generate:pg",
     "db:drop": "drizzle-kit drop",
     "db:reset": "tsx -r tsconfig-paths/register ./config/db/neon/clearDb.ts",
-    "db:migrate": "drizzle-kit migrate",
-    "migrate": "tsx -r tsconfig-paths/register ./config/db/neon/migrate.ts"
+    "db:migrate": "tsx -r tsconfig-paths/register ./config/db/neon/migrate.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^4.23.2",
@@ -37,6 +36,7 @@
     "lucide-react": "^0.263.1",
     "next": "13.4.8",
     "next-auth": "^4.22.3",
+    "next-cloudinary": "^4.17.1",
     "postcss": "8.4.24",
     "postgres": "^3.3.5",
     "react": "18.2.0",

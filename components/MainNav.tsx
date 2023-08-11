@@ -36,6 +36,11 @@ export const MainNav: FC<MainNavProps> = ({ className, ...props }) => {
       getActivePath
     ),
     createInternalRoute(
+      `/${params.storeId}/billboards`,
+      'Billboard',
+      getActivePath
+    ),
+    createInternalRoute(
       `/${params.storeId}/overviews`,
       'Overview',
       getActivePath
