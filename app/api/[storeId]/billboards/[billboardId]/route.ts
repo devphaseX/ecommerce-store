@@ -14,8 +14,9 @@ import {
   UNPROCESSABLE_ENTITY,
 } from 'http-status';
 import { db } from '@/config/db/neon/initialize';
-import { DrizzleError, eq, sql } from 'drizzle-orm';
+import { DrizzleError, and, eq, sql } from 'drizzle-orm';
 import { billBoards } from '@/schema/bill-board';
+import { stores } from '@/schema/store';
 
 const billboardParamsSchema = storeIdParamSchema.and(billboardIdParamSchema);
 type BillBoardRequestParams = Expand<TypeOf<typeof billboardParamsSchema>>;
@@ -89,8 +90,6 @@ interface DeleteBillboardContext {
   params: BillBoardRequestParams;
 }
 
-const deleteBillboardSchema = updateBillboardSchema.pick({ params: true });
-
 export const DELETE = async (
   _: NextRequest,
   { params }: DeleteBillboardContext
@@ -101,9 +100,7 @@ export const DELETE = async (
       return new NextResponse('Unauthenciated', { status: UNAUTHORIZED });
     }
 
-    const {
-      params: { billboardId, storeId },
-    } = deleteBillboardSchema.parse({ params });
+    const { billboardId, storeId } = billboardParamsSchema.parse(params);
 
     const billboard = await db.query.billBoards.findFirst({
       where: sql`${billBoards.id} = ${billboardId} and ${billBoards.storeId} = ${storeId}`,
@@ -138,6 +135,44 @@ export const DELETE = async (
       return new NextResponse('Billboard delete failed', {
         status: UNPROCESSABLE_ENTITY,
       });
+    }
+
+    return new NextResponse('Internal server error', { status: 500 });
+  }
+};
+
+interface GetBillboardByIdContext {
+  params: BillBoardRequestParams;
+}
+
+export const GET = async (
+  _req: NextRequest,
+  { params }: GetBillboardByIdContext
+) => {
+  try {
+    const { billboardId, storeId } = billboardParamsSchema.parse(params);
+
+    const [billboard] = await db
+      .select()
+      .from(billBoards)
+      .where(
+        and(eq(billBoards.storeId, storeId), eq(billBoards.id, billboardId))
+      )
+      .innerJoin(stores, eq(stores.id, storeId));
+
+    if (!billboard) {
+      return new Response('Billboard not found', { status: NOT_FOUND });
+    }
+
+    return NextResponse.json(billboard);
+  } catch (e) {
+    console.log('[GET_BILLBOARD_BY_ID]', e);
+
+    if (e instanceof ZodError) {
+      const pathIssue = e.issues.find(({ path }) => path.includes('query'));
+      if (pathIssue) {
+        return new NextResponse(pathIssue.message, { status: BAD_REQUEST });
+      }
     }
 
     return new NextResponse('Internal server error', { status: 500 });
