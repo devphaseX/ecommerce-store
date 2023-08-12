@@ -19,11 +19,8 @@ import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import toast from 'react-hot-toast';
-import { useParams, useRouter } from 'next/navigation';
+import { redirect, useParams, useRouter } from 'next/navigation';
 
-import { AlertModal } from '@/components/models/alert-modal';
-import { ApiAlert } from '@/components/ui/api-alert';
-import { useOrigin } from '@/hooks/use-origin';
 import { BillBoardParams } from '../type';
 import { BillBoard } from '@/schema/bill-board';
 import {
@@ -32,6 +29,7 @@ import {
 } from '../(validators)/bill-form-schema';
 import { ImageUpload } from '@/components/ui/image-upload';
 import { DashboardLayoutParams } from '@/app/(dashboard)/[storeId]/layout';
+import { NOT_FOUND, UNAUTHORIZED, UNPROCESSABLE_ENTITY } from 'http-status';
 
 interface BillBoardFormProps {
   initialBillBoard: BillBoard | null;
@@ -44,7 +42,6 @@ export const BillBoardForm: React.FC<BillBoardFormProps> = ({
     DashboardLayoutParams;
   const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
   const router = useRouter();
-  const origin = useOrigin();
 
   const billBoardForm = useForm<BillBoardFormPayload>({
     resolver: zodResolver(billBoardFormSchema),
@@ -54,17 +51,50 @@ export const BillBoardForm: React.FC<BillBoardFormProps> = ({
   const {
     mutateAsync: serverSyncBillboard,
     isLoading: billBoardActionProcessing,
-  } = useMutation<void>({
-    mutationFn: async () => {
-      let response: AxiosResponse;
+  } = useMutation({
+    mutationFn: async (data: BillBoardFormPayload) => {
+      let response: AxiosResponse<BillBoard>;
+
       if (initialBillBoard) {
-        response = await axios.patch(
-          `api/${storeId}/billboards/${billboardId}`
+        response = await axios.patch<BillBoard>(
+          `/api/${storeId}/billboards/${billboardId}`,
+          data
         );
       } else {
-        response = await axios.post(`api/${storeId}/billboards/`);
+        response = await axios.post<BillBoard>(
+          `/api/${storeId}/billboards/`,
+          data
+        );
       }
       return response.data;
+    },
+
+    onSuccess: () => {
+      toast.success(toastMessage);
+      setTimeout(() => router.push(`/${storeId}/billboards`));
+    },
+
+    onError: (error) => {
+      if (error instanceof AxiosError) {
+        if (error.response) {
+          if (
+            error.response.status === NOT_FOUND &&
+            String(error.response.data).match(/store/i)
+          ) {
+            toast.error('Store not exist');
+            return setTimeout(() => router.push('/'), 3000);
+          } else if (error.response.status === UNAUTHORIZED) {
+            toast.error('Ensure you are signed in');
+            return redirect('/sign-in');
+          } else if (error.response.status === UNPROCESSABLE_ENTITY) {
+            return toast.error(
+              'Check your form feed, You have provided an incorrect information form'
+            );
+          }
+        }
+      }
+
+      toast.error('Something went wrong while creating billboard');
     },
   });
 
@@ -88,12 +118,6 @@ export const BillBoardForm: React.FC<BillBoardFormProps> = ({
 
   return (
     <>
-      <AlertModal
-        loading={actionOnBillboardLoading}
-        modalOpen={deleteAlertOpen}
-        onClose={() => setDeleteAlertOpen(false)}
-        onConfirm={() => serverSyncBillboard()}
-      />
       <div className="flex items-center justify-between">
         <Heading title={title} description={description} />
         {initialBillBoard ? (
@@ -111,7 +135,7 @@ export const BillBoardForm: React.FC<BillBoardFormProps> = ({
       <Form {...billBoardForm}>
         <form
           onSubmit={billBoardForm.handleSubmit(
-            (data) => {}
+            (data) => serverSyncBillboard(data)
             // updateStoreSettings(data)
           )}
           className="space-y-8 w-full"
@@ -167,10 +191,6 @@ export const BillBoardForm: React.FC<BillBoardFormProps> = ({
         </form>
       </Form>
       <Separator />
-      <ApiAlert
-        title="NEXT_PUBLIC_API_URL"
-        description={`${origin ?? ''}/api/${billboardId}`}
-      />
     </>
   );
 };
