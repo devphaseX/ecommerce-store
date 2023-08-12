@@ -17,7 +17,10 @@ function createInternalRoute(
     href,
     label,
     active: () => {
-      return href === getActivePath();
+      return (
+        href === getActivePath() ||
+        !!getActivePath().match(RegExp(String.raw`^/?${href}`, 'i'))
+      );
     },
   };
 }
@@ -37,7 +40,7 @@ export const MainNav: FC<MainNavProps> = ({ className, ...props }) => {
     ),
     createInternalRoute(
       `/${params.storeId}/billboards`,
-      'Billboard',
+      'Billboards',
       getActivePath
     ),
     createInternalRoute(
