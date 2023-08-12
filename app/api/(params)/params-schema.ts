@@ -1,11 +1,22 @@
-import { uuid } from 'drizzle-orm/pg-core';
 import { TypeOf, object, string } from 'zod';
 
 type ParamWith<T> = Expand<T & { [key: string]: unknown }>;
+const getRequiredParamsMessage = (key: string) =>
+  `[Param] - ${key} is required`;
 
-const storeIdParamSchema = object({ storeId: string().uuid().nonempty() });
+const getNonUuidTypeMessage = (key: string) => `Expect ${key} of type UUID`;
+const storeIdParamSchema = object({
+  storeId: string({ required_error: getRequiredParamsMessage('storeId') })
+    .uuid({ message: getNonUuidTypeMessage('storeId') })
+    .nonempty(),
+});
+
 const billboardIdParamSchema = object({
-  billboardId: string().uuid().nonempty(),
+  billboardId: string({
+    required_error: getRequiredParamsMessage('billboardId'),
+  })
+    .uuid({ message: getNonUuidTypeMessage('billboardId') })
+    .nonempty(),
 });
 
 type ParamWithStoreId = ParamWith<TypeOf<typeof storeIdParamSchema>>;
