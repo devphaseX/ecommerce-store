@@ -1,6 +1,6 @@
 import { auth } from '@clerk/nextjs';
 import { BillBoardParams } from './type';
-import { redirect } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { db } from '@/config/db/neon/initialize';
 import { sql } from 'drizzle-orm';
 import { BillBoard, billBoards } from '@/schema/bill-board';
@@ -26,6 +26,8 @@ const BillBoardPage = async ({
         where: sql`${billBoards.id} = ${billboardId}`,
       })) ?? null;
   }
+
+  if (billboardIdUuidResult.success && !billboard) return notFound();
 
   return (
     <div className="flex flex-col">

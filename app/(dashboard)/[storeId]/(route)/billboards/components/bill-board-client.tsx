@@ -6,8 +6,14 @@ import { Separator } from '@/components/ui/separator';
 import { Plus } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { DashboardLayoutParams } from '../../../layout';
+import { BillBoardColumns, billboardColumns } from './column';
+import { DataTable } from '@/components/ui/data-table';
 
-export const BillBoardClient: React.FC = () => {
+interface BillboardClientProps {
+  data: Array<BillBoardColumns>;
+}
+
+export const BillBoardClient: React.FC<BillboardClientProps> = ({ data }) => {
   const router = useRouter();
   const params = useParams() as DashboardLayoutParams;
 
@@ -15,7 +21,7 @@ export const BillBoardClient: React.FC = () => {
     <>
       <div className="flex items-center justify-between">
         <Heading
-          title="Billboards (0)"
+          title={`Billboards (${data.length})`}
           description="Manage billboards for your store"
         />
         <Button
@@ -26,6 +32,7 @@ export const BillBoardClient: React.FC = () => {
         </Button>
       </div>
       <Separator />
+      <DataTable columns={billboardColumns} data={data} />
     </>
   );
 };
