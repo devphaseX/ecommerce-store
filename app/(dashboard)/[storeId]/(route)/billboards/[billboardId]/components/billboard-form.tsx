@@ -30,6 +30,8 @@ import {
 import { ImageUpload } from '@/components/ui/image-upload';
 import { DashboardLayoutParams } from '@/app/(dashboard)/[storeId]/layout';
 import { NOT_FOUND, UNAUTHORIZED, UNPROCESSABLE_ENTITY } from 'http-status';
+import { useDeleteBillboard } from '@/hooks/query/useDeleteBillboard';
+import { AlertModal } from '@/components/models/alert-modal';
 
 interface BillBoardFormProps {
   initialBillBoard: BillBoard | null;
@@ -40,7 +42,18 @@ export const BillBoardForm: React.FC<BillBoardFormProps> = ({
 }) => {
   const { billboardId, storeId } = useParams() as BillBoardParams &
     DashboardLayoutParams;
-  const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
+  const [deletePromptModalOpen, setDeletePromptModalOpen] = useState(false);
+
+  const { billboardDeleting, onDeleteBillboard } = useDeleteBillboard({
+    billboardId,
+    storeId,
+    onSuccess: () => setDeletePromptModalOpen(false),
+    onSettled: () => {
+      router.refresh();
+      router.push(`/${storeId}/billboards`);
+    },
+  });
+
   const router = useRouter();
 
   const billBoardForm = useForm<BillBoardFormPayload>({
@@ -71,7 +84,10 @@ export const BillBoardForm: React.FC<BillBoardFormProps> = ({
 
     onSuccess: () => {
       toast.success(toastMessage);
-      setTimeout(() => router.push(`/${storeId}/billboards`));
+      setTimeout(() => {
+        router.push(`/${storeId}/billboards`);
+        router.refresh();
+      });
     },
 
     onError: (error) => {
@@ -94,15 +110,13 @@ export const BillBoardForm: React.FC<BillBoardFormProps> = ({
         }
       }
 
-      toast.error('Something went wrong while creating billboard');
+      toast.error(
+        `Something went wrong while ${
+          initialBillBoard ? 'updating' : 'creating'
+        } billboard`
+      );
     },
   });
-
-  const { mutateAsync: removeBillboard, isLoading: billboardDeleting } =
-    useMutation<void>({
-      mutationFn: async () =>
-        await axios.delete(`api/${storeId}/billboards/${billboardId}`),
-    });
 
   const actionOnBillboardLoading =
     billBoardActionProcessing || billboardDeleting;
@@ -115,9 +129,14 @@ export const BillBoardForm: React.FC<BillBoardFormProps> = ({
     ? 'Billboard Updated'
     : 'Billboard created';
   const action = initialBillBoard ? 'Save changes' : 'Create';
-
   return (
     <>
+      <AlertModal
+        modalOpen={deletePromptModalOpen}
+        loading={actionOnBillboardLoading}
+        onClose={() => setDeletePromptModalOpen(false)}
+        onConfirm={() => onDeleteBillboard()}
+      />
       <div className="flex items-center justify-between">
         <Heading title={title} description={description} />
         {initialBillBoard ? (
@@ -125,7 +144,7 @@ export const BillBoardForm: React.FC<BillBoardFormProps> = ({
             disabled={actionOnBillboardLoading}
             variant="destructive"
             size="sm"
-            onClick={() => setDeleteAlertOpen(true)}
+            onClick={() => setDeletePromptModalOpen(true)}
           >
             <Trash className="h-4 w-4" />
           </Button>
@@ -134,9 +153,8 @@ export const BillBoardForm: React.FC<BillBoardFormProps> = ({
       <Separator />
       <Form {...billBoardForm}>
         <form
-          onSubmit={billBoardForm.handleSubmit(
-            (data) => serverSyncBillboard(data)
-            // updateStoreSettings(data)
+          onSubmit={billBoardForm.handleSubmit((data) =>
+            serverSyncBillboard(data)
           )}
           className="space-y-8 w-full"
         >
@@ -190,7 +208,6 @@ export const BillBoardForm: React.FC<BillBoardFormProps> = ({
           </Button>
         </form>
       </Form>
-      <Separator />
     </>
   );
 };
