@@ -1,14 +1,45 @@
-import { TypeOf, object, string } from 'zod';
+import { AnyZodObject, TypeOf, ZodObject, object, string } from 'zod';
+
+type LabelParamKey<Param> = {
+  readonly paramName: Param;
+};
+
+type TypeLooseDynamicZodObject<
+  K extends string,
+  Type extends AnyZodObject
+> = ZodObject<{
+  [P in K]: InferZodSchemaObject<Type>[string];
+}>;
+
+function createIdParamQuerySchema<K extends `${string}Id`>(
+  param: LabelParamKey<K>
+) {
+  const key = param.paramName;
+
+  const schema = object({
+    [param.paramName]: string({
+      required_error: getRequiredParamsMessage(key),
+    })
+      .uuid({ message: getNonUuidTypeMessage(key) })
+      .nonempty(),
+  });
+
+  return <TypeLooseDynamicZodObject<K, typeof schema>>schema;
+}
+
+type InferZodSchemaObject<ZodSchemaObject extends object> =
+  ZodSchemaObject extends ZodObject<infer Schema> ? Schema : never;
 
 type ParamWith<T> = Expand<T & { [key: string]: unknown }>;
-const getRequiredParamsMessage = (key: string) =>
+export const getRequiredParamsMessage = (key: string) =>
   `[Param] - ${key} is required`;
 
-const getNonUuidTypeMessage = (key: string) => `Expect ${key} of type UUID`;
-const storeIdParamSchema = object({
-  storeId: string({ required_error: getRequiredParamsMessage('storeId') })
-    .uuid({ message: getNonUuidTypeMessage('storeId') })
-    .nonempty(),
+export const getNonUuidTypeMessage = (key: string) =>
+  `Expect ${key} of type UUID`;
+const storeIdParamSchema = createIdParamQuerySchema({ paramName: 'storeId' });
+
+const categoryIdParamSchema = createIdParamQuerySchema({
+  paramName: 'categoryId',
 });
 
 const billboardIdParamSchema = object({
@@ -21,6 +52,7 @@ const billboardIdParamSchema = object({
 
 type ParamWithStoreId = ParamWith<TypeOf<typeof storeIdParamSchema>>;
 type ParamWithBillboardId = ParamWith<TypeOf<typeof billboardIdParamSchema>>;
+type ParamWithCategoryId = ParamWith<TypeOf<typeof categoryIdParamSchema>>;
 
-export { storeIdParamSchema, billboardIdParamSchema };
-export type { ParamWithStoreId, ParamWithBillboardId };
+export { storeIdParamSchema, billboardIdParamSchema, categoryIdParamSchema };
+export type { ParamWithStoreId, ParamWithBillboardId, ParamWithCategoryId };
