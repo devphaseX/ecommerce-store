@@ -1,6 +1,7 @@
 import { InferModel, relations } from 'drizzle-orm';
 import { pgTable, uuid, varchar, timestamp, text } from 'drizzle-orm/pg-core';
 import { billBoards } from './bill-board';
+import { categories } from './category';
 
 export const stores = pgTable('stores', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -14,4 +15,5 @@ export type Stores = InferModel<typeof stores>;
 
 export const storeRelations = relations(stores, ({ many }) => ({
   billBoards: many(billBoards),
+  categories: many(categories),
 }));
