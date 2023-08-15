@@ -72,8 +72,7 @@ export const PATCH = async (
         { status: UNPROCESSABLE_ENTITY }
       );
     }
-
-    if (name === category.name && billboard.id === billboardId) {
+    if (name === category.name && category.billboardId === billboardId) {
       return new NextResponse('Category already updated', { status: CONFLICT });
     }
 
