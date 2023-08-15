@@ -57,15 +57,21 @@ export const POST = async (
       }),
     ]);
 
-    const storeOwnedByAuthUser = store && store?.userId === userId;
+    if (!store) {
+      return new NextResponse(
+        'Cannot create a new category record with an non existing store',
+        { status: UNPROCESSABLE_ENTITY }
+      );
+    }
 
+    const storeOwnedByAuthUser = store?.userId === userId;
     if (!storeOwnedByAuthUser) {
       return new NextResponse('Unauthorized', { status: UNAUTHORIZED });
     }
 
     if (!billboard) {
       return new NextResponse(
-        'Cannot create a new category record with an invalid billboard',
+        'Cannot create a new category record with an non existing billboard',
         { status: UNPROCESSABLE_ENTITY }
       );
     }
@@ -77,7 +83,7 @@ export const POST = async (
 
     return NextResponse.json(category);
   } catch (e) {
-    console.log('[CATEGORY_POST]', e);
+    console.log('[CATEGORIES_POST]', e);
     if (e instanceof ZodError) {
       const pathIssue = e.issues.find(({ path }) => path.includes('query'));
 
@@ -116,7 +122,7 @@ export const GET = async (
 
     return NextResponse.json(queriedCategories);
   } catch (e) {
-    console.log('[CATEGORY_GET]', e);
+    console.log('[CATEGORIES_GET]', e);
 
     if (e instanceof ZodError) {
       const pathIssue = e.issues.find(({ path }) => path.includes('query'));
