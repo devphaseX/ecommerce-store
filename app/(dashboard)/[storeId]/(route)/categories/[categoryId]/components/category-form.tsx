@@ -19,14 +19,19 @@ import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import toast from 'react-hot-toast';
-import { redirect, useParams, useRouter } from 'next/navigation';
+import { redirect, useParams, usePathname, useRouter } from 'next/navigation';
 
 import { BillBoard } from '@/schema/bill-board';
 import {
   CategoryFormPayload,
   categoryFormSchema,
 } from '../(validators)/category-form-schema';
-import { NOT_FOUND, UNAUTHORIZED, UNPROCESSABLE_ENTITY } from 'http-status';
+import {
+  CONFLICT,
+  NOT_FOUND,
+  UNAUTHORIZED,
+  UNPROCESSABLE_ENTITY,
+} from 'http-status';
 import { AlertModal } from '@/components/models/alert-modal';
 import {
   ParamWithCategoryId,
@@ -57,11 +62,14 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
 }) => {
   const { categoryId, storeId } = useParams() as ActiveCatagoryContextParam;
   const [deletePromptModalOpen, setDeletePromptModalOpen] = useState(false);
+  const pathname = usePathname();
   const { categoryDeleteActionInProgress, deleteCategoryAction } =
     useDeleteCategory({
       storeId,
       categoryId: initialCategory?.id,
       categoryName: initialCategory?.name,
+      onSuccess: () =>
+        router.push(pathname.replace(/(\/categories)\/?.*/, '$1')),
     });
 
   const router = useRouter();
@@ -119,6 +127,8 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
             return toast.error(
               'Check your form feed, You have provided an incorrect information form'
             );
+          } else if (error.response.status === CONFLICT) {
+            return toast.error(error.response.data);
           }
         }
       }
