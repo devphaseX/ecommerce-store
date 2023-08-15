@@ -179,7 +179,7 @@ export const GET = async (
     });
 
     if (!store) {
-      return new NextResponse('Store not found', { status: UNAUTHORIZED });
+      return new NextResponse('Store not exist', { status: UNAUTHORIZED });
     }
 
     const [category] = await db
