@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { TypeOf, ZodError, object } from 'zod';
 import {
-  billboardIdParamSchema,
+  categoryIdParamSchema,
   storeIdParamSchema,
 } from '@/app/api/(params)/params-schema';
-import { billBoardFormSchema } from '@/app/(dashboard)/[storeId]/(route)/billboards/[billboardId]/(validators)/bill-form-schema';
 import { auth } from '@clerk/nextjs';
 import {
   BAD_REQUEST,
@@ -14,25 +13,27 @@ import {
   UNPROCESSABLE_ENTITY,
 } from 'http-status';
 import { db } from '@/config/db/neon/initialize';
-import { DrizzleError, and, eq, sql } from 'drizzle-orm';
+import { DrizzleError, eq, sql } from 'drizzle-orm';
 import { billBoards } from '@/schema/bill-board';
 import { stores } from '@/schema/store';
+import { categories } from '@/schema/category';
+import { categoryFormSchema } from '@/app/(dashboard)/[storeId]/(route)/categories/[categoryId]/(validators)/category-form-schema';
 
-const billboardParamsSchema = storeIdParamSchema.and(billboardIdParamSchema);
-type BillBoardRequestParams = Expand<TypeOf<typeof billboardParamsSchema>>;
+const categoryParamsSchema = storeIdParamSchema.and(categoryIdParamSchema);
+type CategoryParams = Expand<TypeOf<typeof categoryParamsSchema>>;
 
-const updateBillboardSchema = object({
-  params: billboardParamsSchema,
-  body: billBoardFormSchema,
+const updateCategorySchema = object({
+  params: categoryParamsSchema,
+  body: categoryFormSchema,
 });
 
-interface UpdateBillboardContext {
-  params: BillBoardRequestParams;
+interface UpdateCategoryContext {
+  params: CategoryParams;
 }
 
 export const PATCH = async (
   req: NextRequest,
-  { params }: UpdateBillboardContext
+  { params }: UpdateCategoryContext
 ) => {
   try {
     const { userId } = auth();
@@ -42,31 +43,44 @@ export const PATCH = async (
 
     const {
       body,
-      params: { storeId, billboardId },
-    } = updateBillboardSchema.parse({
+      params: { storeId, categoryId },
+    } = updateCategorySchema.parse({
       params,
       body: await req.json(),
     });
 
-    const [billboard] = await db
+    const [category] = await db
       .select()
-      .from(billBoards)
+      .from(categories)
       .where(
-        sql`${billBoards.id} = ${billboardId} and ${billBoards.storeId} = ${storeId}`
+        sql`${categories.id} = ${categoryId} and ${categories.storeId} = ${storeId}`
       );
 
-    if (!billboard) {
+    if (!category) {
       return new NextResponse('Not found', { status: NOT_FOUND });
     }
 
-    await db
-      .update(billBoards)
-      .set(body)
-      .where(eq(billBoards.id, billboard.id));
+    const { billboardId, name } = body;
 
-    return NextResponse.json(billboard);
+    const billboard = await db.query.billBoards.findFirst({
+      where: sql`${billBoards.id} = ${billboardId}`,
+    });
+
+    if (!billboard) {
+      return new NextResponse(
+        'Cannot create a new category record with an non existing billboard',
+        { status: UNPROCESSABLE_ENTITY }
+      );
+    }
+
+    const updateCategory = await db
+      .update(categories)
+      .set({ name, billboardId })
+      .where(eq(categories.id, categoryId));
+
+    return NextResponse.json(updateCategory);
   } catch (e) {
-    console.log('[BILLBOARD_UPDATE]', e);
+    console.log('[CATEGORY_UPDATE]', e);
     if (e instanceof ZodError) {
       const pathIssue = e.issues.find(({ path }) => path.includes('query'));
 
@@ -77,7 +91,11 @@ export const PATCH = async (
     }
 
     if (e instanceof DrizzleError) {
-      return new NextResponse('Billboard update failed', {
+      if (e.message.match(/duplicate/i)) {
+        return new NextResponse('Category already exist', { status: CONFLICT });
+      }
+
+      return new NextResponse('Failed to update category', {
         status: UNPROCESSABLE_ENTITY,
       });
     }
@@ -87,7 +105,7 @@ export const PATCH = async (
 };
 
 interface DeleteBillboardContext {
-  params: BillBoardRequestParams;
+  params: CategoryParams;
 }
 
 export const DELETE = async (
@@ -100,28 +118,28 @@ export const DELETE = async (
       return new NextResponse('Unauthenciated', { status: UNAUTHORIZED });
     }
 
-    const { billboardId, storeId } = billboardParamsSchema.parse(params);
+    const { categoryId, storeId } = categoryParamsSchema.parse(params);
 
-    const billboard = await db.query.billBoards.findFirst({
-      where: sql`${billBoards.id} = ${billboardId} and ${billBoards.storeId} = ${storeId}`,
-      with: { store: true },
+    const billboard = await db.query.categories.findFirst({
+      where: sql`${categories.id} = ${categoryId} and ${categories.storeId} = ${storeId}`,
+      with: { ownedStore: true },
     });
 
     if (!billboard) {
       return new NextResponse('Billboard not found', { status: NOT_FOUND });
     }
 
-    if (billboard.store.userId !== userId) {
+    if (billboard.ownedStore?.userId !== userId) {
       return new NextResponse('Invalid billboard delete request', {
-        status: CONFLICT,
+        status: UNAUTHORIZED,
       });
     }
 
-    await db.delete(billBoards).where(sql`${billBoards.id} = ${billboard.id}`);
+    await db.delete(categories).where(sql`${categories.id} = ${categoryId}`);
 
-    return new NextResponse('Billboard deleted');
+    return new NextResponse('Category deleted');
   } catch (e) {
-    console.log('[BILLBOARD_DELETE]', e);
+    console.log('[CATEGORY_DELETE]', e);
     if (e instanceof ZodError) {
       const pathIssue = e.issues.find(({ path }) => path.includes('query'));
 
@@ -142,7 +160,7 @@ export const DELETE = async (
 };
 
 interface GetBillboardByIdContext {
-  params: BillBoardRequestParams;
+  params: CategoryParams;
 }
 
 export const GET = async (
@@ -150,23 +168,36 @@ export const GET = async (
   { params }: GetBillboardByIdContext
 ) => {
   try {
-    const { billboardId, storeId } = billboardParamsSchema.parse(params);
+    const { categoryId, storeId } = categoryParamsSchema.parse(params);
 
-    const [billboard] = await db
-      .select()
-      .from(billBoards)
-      .where(
-        and(eq(billBoards.storeId, storeId), eq(billBoards.id, billboardId))
-      )
-      .innerJoin(stores, eq(stores.id, storeId));
+    const store = await db.query.stores.findFirst({
+      where: sql`${stores.id} = ${storeId}`,
+    });
 
-    if (!billboard) {
-      return new Response('Billboard not found', { status: NOT_FOUND });
+    if (!store) {
+      return new NextResponse('Store not found', { status: UNAUTHORIZED });
     }
 
-    return NextResponse.json(billboard);
+    const [category] = await db
+      .select({
+        id: categories.id,
+        name: categories.name,
+        createdAt: sql<string>`to_char(${categories.createdAt},'Month ddth, yyyy')`,
+        billboardLabel: sql<string>`${billBoards.label}`,
+      })
+      .from(categories)
+      .where(
+        sql`${categories.storeId} = ${storeId} and ${categories.id} = ${categoryId}`
+      )
+      .innerJoin(billBoards, sql`${billBoards.id}=${categories.billboardId}`);
+
+    if (!category) {
+      return new Response('Category not found', { status: NOT_FOUND });
+    }
+
+    return NextResponse.json(category);
   } catch (e) {
-    console.log('[GET_BILLBOARD_BY_ID]', e);
+    console.log('[GET_CATERGORY_BY_ID]', e);
 
     if (e instanceof ZodError) {
       const pathIssue = e.issues.find(({ path }) => path.includes('query'));
