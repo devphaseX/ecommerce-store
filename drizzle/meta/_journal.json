@@ -29,6 +29,20 @@
       "when": 1691554221041,
       "tag": "0003_broad_vanisher",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1692021210589,
+      "tag": "0004_chief_bug",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1692021235485,
+      "tag": "0005_open_maginty",
+      "breakpoints": true
     }
   ]
 }
