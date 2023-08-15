@@ -16,37 +16,38 @@ import { useParams, useRouter } from 'next/navigation';
 import { DashboardLayoutParams } from '../../../layout';
 import { AlertModal } from '@/components/models/alert-modal';
 import { useState } from 'react';
-import { useDeleteBillboard } from '@/hooks/query/useDeleteBillboard';
+import { useDeleteCategory } from '@/hooks/query/useDeleteCategory';
 
 interface CellActionProps {
   data: CategoryColumns;
 }
 
 const CellAction: React.FC<CellActionProps> = ({
-  data: { id: billboardId },
+  data: { id: categoryId },
 }) => {
   const activeClientEnv = useIsClient();
   const router = useRouter();
   const [deletePromptModalOpen, setDeletePromptModalOpen] = useState(false);
 
   const { storeId } = useParams() as DashboardLayoutParams;
-  const { billboardDeleting, onDeleteBillboard } = useDeleteBillboard({
-    billboardId,
-    storeId,
-    onSuccess: () => setDeletePromptModalOpen(false),
-    onSettled: () => router.refresh(),
-  });
+  const { categoryDeleteActionInProgress, deleteCategoryAction } =
+    useDeleteCategory({
+      categoryId,
+      storeId,
+      onSuccess: () => setDeletePromptModalOpen(false),
+      onSettled: () => router.refresh(),
+    });
 
   function onCopySaveToClipboard() {
     if (!activeClientEnv) return;
-    navigator.clipboard.writeText(billboardId);
+    navigator.clipboard.writeText(categoryId);
 
     toast.success('Billboard ID copied to clipboard');
   }
 
   function onBillboardEdit() {
     if (!activeClientEnv) return;
-    router.push(`/${storeId}/billboards/${billboardId}`);
+    router.push(`/${storeId}/categories/${categoryId}`);
   }
 
   return (
@@ -54,8 +55,8 @@ const CellAction: React.FC<CellActionProps> = ({
       <AlertModal
         modalOpen={deletePromptModalOpen}
         onClose={() => setDeletePromptModalOpen(false)}
-        onConfirm={() => onDeleteBillboard()}
-        loading={billboardDeleting}
+        onConfirm={() => deleteCategoryAction()}
+        loading={categoryDeleteActionInProgress}
       />
 
       <DropdownMenu>
