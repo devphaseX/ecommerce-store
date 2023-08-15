@@ -73,6 +73,10 @@ export const PATCH = async (
       );
     }
 
+    if (name === category.name && billboard.id === billboardId) {
+      return new NextResponse('Category already updated', { status: CONFLICT });
+    }
+
     const updateCategory = await db
       .update(categories)
       .set({ name, billboardId })
