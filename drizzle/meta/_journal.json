@@ -43,6 +43,13 @@
       "when": 1692021235485,
       "tag": "0005_open_maginty",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1692151709601,
+      "tag": "0006_huge_talisman",
+      "breakpoints": true
     }
   ]
 }
