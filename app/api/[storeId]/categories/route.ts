@@ -5,13 +5,12 @@ import { auth } from '@clerk/nextjs';
 import {
   BAD_REQUEST,
   CONFLICT,
-  NOT_FOUND,
   UNAUTHORIZED,
   UNPROCESSABLE_ENTITY,
 } from 'http-status';
 import { db } from '@/config/db/neon/initialize';
 import { stores } from '@/schema/store';
-import { DrizzleError, sql } from 'drizzle-orm';
+import { DrizzleError, asc, sql } from 'drizzle-orm';
 import { billBoards } from '@/schema/bill-board';
 import { categoryFormSchema } from '@/app/(dashboard)/[storeId]/(route)/categories/[categoryId]/(validators)/category-form-schema';
 import { categories } from '@/schema/category';
@@ -125,6 +124,7 @@ export const GET = async (
       })
       .from(categories)
       .where(sql`${categories.storeId} = ${storeId}`)
+      .orderBy(asc(categories.createdAt))
       .innerJoin(billBoards, sql`${billBoards.id}=${categories.billboardId}`);
 
     return NextResponse.json(queriedCategories);

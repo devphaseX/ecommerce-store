@@ -14,15 +14,14 @@ import {
 } from 'http-status';
 import { db } from '@/config/db/neon/initialize';
 import { stores } from '@/schema/store';
-import { DrizzleError, eq, sql } from 'drizzle-orm';
+import { DrizzleError, asc, eq, sql } from 'drizzle-orm';
 
-import { sizes } from '@/schema/size';
-import { sizeFormSchema } from '@/app/(dashboard)/[storeId]/(route)/sizes/[sizeId]/(validators)/size-form-schema';
+import { insertSizeSchema, sizes } from '@/schema/size';
 import { SizeColumns } from '@/app/(dashboard)/[storeId]/(route)/sizes/components/column';
 
 export const createSizeSchema = object({
   params: storeIdParamSchema,
-  body: sizeFormSchema,
+  body: insertSizeSchema,
 });
 
 type CreateSizeParams = Expand<TypeOf<typeof createSizeSchema>['params']>;
@@ -114,7 +113,7 @@ export const GET = async (
       } satisfies Record<keyof SizeColumns, unknown>)
       .from(sizes)
       .where(eq(sizes.storeId, storeId))
-      .orderBy(sizes.createdAt);
+      .orderBy(asc(sizes.createdAt));
 
     return NextResponse.json(queriedSizes);
   } catch (e) {

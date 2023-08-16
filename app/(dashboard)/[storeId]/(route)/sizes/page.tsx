@@ -3,9 +3,8 @@ import { SizeClient } from './components/bill-board-client';
 import { notFound, redirect } from 'next/navigation';
 import { ParamWithStoreId } from '@/app/api/(params)/params-schema';
 import { db } from '@/config/db/neon/initialize';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, asc, eq, sql } from 'drizzle-orm';
 import { stores } from '@/schema/store';
-import { billBoards } from '@/schema/bill-board';
 import { sizes } from '@/schema/size';
 import { SizeColumns } from './components/column';
 
@@ -31,7 +30,7 @@ const SizesPage = async ({ params: { storeId } }: SizesPageContext) => {
       } satisfies Record<keyof SizeColumns, unknown>)
       .from(sizes)
       .where(eq(sizes.storeId, storeId))
-      .orderBy(sizes.createdAt),
+      .orderBy(asc(sizes.createdAt)),
   ]);
 
   if (!store) return notFound();

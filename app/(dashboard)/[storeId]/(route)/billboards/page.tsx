@@ -3,7 +3,7 @@ import { BillBoardClient } from './components/bill-board-client';
 import { notFound, redirect } from 'next/navigation';
 import { ParamWithStoreId } from '@/app/api/(params)/params-schema';
 import { db } from '@/config/db/neon/initialize';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, asc, eq, sql } from 'drizzle-orm';
 import { stores } from '@/schema/store';
 import { billBoards } from '@/schema/bill-board';
 
@@ -31,7 +31,8 @@ const BillBoardsPage = async ({
         createdAt: sql<string>`to_char(${billBoards.createdAt},'Month ddth, yyyy')`,
       })
       .from(billBoards)
-      .where(eq(billBoards.storeId, storeId)),
+      .where(eq(billBoards.storeId, storeId))
+      .orderBy(asc(billBoards.createdAt)),
   ]);
 
   if (!store) return notFound();

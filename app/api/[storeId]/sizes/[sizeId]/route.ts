@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { TypeOf, ZodError, object } from 'zod';
 import {
+  ParamWithSizeId,
+  ParamWithStoreId,
   categoryIdParamSchema,
+  createDynamicPathSchema,
+  sizeIdParamSchema,
   storeIdParamSchema,
 } from '@/app/api/(params)/params-schema';
 import { auth } from '@clerk/nextjs';
@@ -13,18 +17,20 @@ import {
   UNPROCESSABLE_ENTITY,
 } from 'http-status';
 import { db } from '@/config/db/neon/initialize';
-import { DrizzleError, eq, sql } from 'drizzle-orm';
-import { billBoards } from '@/schema/bill-board';
+import { DrizzleError, asc, eq, sql } from 'drizzle-orm';
 import { stores } from '@/schema/store';
 import { categories } from '@/schema/category';
-import { categoryFormSchema } from '@/app/(dashboard)/[storeId]/(route)/categories/[categoryId]/(validators)/category-form-schema';
+import { sizes } from '@/schema/size';
+import { sizeFormSchema } from '@/app/(dashboard)/[storeId]/(route)/sizes/[sizeId]/(validators)/size-form-schema';
 
 const categoryParamsSchema = storeIdParamSchema.and(categoryIdParamSchema);
 type CategoryParams = Expand<TypeOf<typeof categoryParamsSchema>>;
 
-const updateCategorySchema = object({
-  params: categoryParamsSchema,
-  body: categoryFormSchema,
+const updateSizeSchema = object({
+  params: storeIdParamSchema.and(
+    createDynamicPathSchema(sizeIdParamSchema, true)
+  ),
+  body: sizeFormSchema,
 });
 
 interface UpdateCategoryContext {
@@ -43,47 +49,37 @@ export const PATCH = async (
 
     const {
       body,
-      params: { storeId, categoryId },
-    } = updateCategorySchema.parse({
+      params: { storeId, sizeId },
+    } = updateSizeSchema.parse({
       params,
       body: await req.json(),
     });
 
-    const [category] = await db
+    const [size] = await db
       .select()
-      .from(categories)
+      .from(sizes)
       .where(
-        sql`${categories.id} = ${categoryId} and ${categories.storeId} = ${storeId}`
+        sql`${sizes.id} = ${sizeId} and ${categories.storeId} = ${storeId}`
       );
 
-    if (!category) {
+    if (!size) {
       return new NextResponse('Not found', { status: NOT_FOUND });
     }
 
-    const { billboardId, name } = body;
+    const { name, value } = body;
 
-    const billboard = await db.query.billBoards.findFirst({
-      where: sql`${billBoards.id} = ${billboardId}`,
-    });
-
-    if (!billboard) {
-      return new NextResponse(
-        'Cannot create a new category record with an non existing billboard',
-        { status: UNPROCESSABLE_ENTITY }
-      );
-    }
-    if (name === category.name && category.billboardId === billboardId) {
-      return new NextResponse('Category already updated', { status: CONFLICT });
+    if (name === size.name && size.value === value) {
+      return new NextResponse('Size already updated', { status: CONFLICT });
     }
 
-    const updateCategory = await db
-      .update(categories)
-      .set({ name, billboardId })
-      .where(eq(categories.id, categoryId));
+    const updateSize = await db
+      .update(sizes)
+      .set({ name, value })
+      .where(eq(sizes.id, sizeId));
 
-    return NextResponse.json(updateCategory);
+    return NextResponse.json(updateSize);
   } catch (e) {
-    console.log('[CATEGORY_UPDATE]', e);
+    console.log('[UPDATE_SIZE_BY_ID]', e);
     if (e instanceof ZodError) {
       const pathIssue = e.issues.find(({ path }) => path.includes('query'));
 
@@ -95,10 +91,10 @@ export const PATCH = async (
 
     if (e instanceof DrizzleError) {
       if (e.message.match(/duplicate/i)) {
-        return new NextResponse('Category already exist', { status: CONFLICT });
+        return new NextResponse('Size already exist', { status: CONFLICT });
       }
 
-      return new NextResponse('Failed to update category', {
+      return new NextResponse('Failed to update size', {
         status: UNPROCESSABLE_ENTITY,
       });
     }
@@ -107,42 +103,45 @@ export const PATCH = async (
   }
 };
 
-interface DeleteBillboardContext {
-  params: CategoryParams;
+interface DeleteSizeContext {
+  params: ParamWithStoreId & ParamWithSizeId;
 }
 
-export const DELETE = async (
-  _: NextRequest,
-  { params }: DeleteBillboardContext
-) => {
+export const DELETE = async (_: NextRequest, { params }: DeleteSizeContext) => {
   try {
     const { userId } = auth();
     if (!userId) {
       return new NextResponse('Unauthenciated', { status: UNAUTHORIZED });
     }
 
-    const { categoryId, storeId } = categoryParamsSchema.parse(params);
+    const { sizeId, storeId } = storeIdParamSchema
+      .and(createDynamicPathSchema(sizeIdParamSchema, true))
+      .parse(params);
 
-    const billboard = await db.query.categories.findFirst({
-      where: sql`${categories.id} = ${categoryId} and ${categories.storeId} = ${storeId}`,
-      with: { ownedStore: true },
+    const store = await db.query.stores.findFirst({
+      where: sql`${stores.userId} = ${userId} and ${stores.id} = ${storeId}`,
     });
 
-    if (!billboard) {
-      return new NextResponse('Billboard not found', { status: NOT_FOUND });
+    if (!store) {
+      return new NextResponse('Store not exit', {
+        status: UNPROCESSABLE_ENTITY,
+      });
     }
+    let size = await db.query.sizes.findFirst({
+      where: sql`${sizes.storeId} = ${storeId} and ${sizes.id} = ${sizeId}`,
+    });
 
-    if (billboard.ownedStore?.userId !== userId) {
-      return new NextResponse('Invalid billboard delete request', {
-        status: UNAUTHORIZED,
+    if (!size) {
+      return new NextResponse('size not exist', {
+        status: UNPROCESSABLE_ENTITY,
       });
     }
 
-    await db.delete(categories).where(sql`${categories.id} = ${categoryId}`);
+    await db.delete(sizes).where(sql`${sizes.id} = ${sizeId}`);
 
-    return new NextResponse('Category deleted');
+    return new NextResponse('Size deleted succesfully');
   } catch (e) {
-    console.log('[CATEGORY_DELETE]', e);
+    console.log('[SIZE_DELETE]', e);
     if (e instanceof ZodError) {
       const pathIssue = e.issues.find(({ path }) => path.includes('query'));
 
@@ -153,7 +152,7 @@ export const DELETE = async (
     }
 
     if (e instanceof DrizzleError) {
-      return new NextResponse('Billboard delete failed', {
+      return new NextResponse('Size delete failed', {
         status: UNPROCESSABLE_ENTITY,
       });
     }
@@ -162,16 +161,18 @@ export const DELETE = async (
   }
 };
 
-interface GetBillboardByIdContext {
-  params: CategoryParams;
+interface GetSizeByIdContext {
+  params: ParamWithStoreId & ParamWithSizeId;
 }
 
 export const GET = async (
   _req: NextRequest,
-  { params }: GetBillboardByIdContext
+  { params }: GetSizeByIdContext
 ) => {
   try {
-    const { categoryId, storeId } = categoryParamsSchema.parse(params);
+    const { sizeId, storeId } = storeIdParamSchema
+      .and(createDynamicPathSchema(sizeIdParamSchema, true))
+      .parse(params);
 
     const store = await db.query.stores.findFirst({
       where: sql`${stores.id} = ${storeId}`,
@@ -181,26 +182,24 @@ export const GET = async (
       return new NextResponse('Store not exist', { status: UNAUTHORIZED });
     }
 
-    const [category] = await db
+    const [size] = await db
       .select({
-        id: categories.id,
-        name: categories.name,
+        id: sizes.id,
+        name: sizes.name,
+        value: sizes.value,
         createdAt: sql<string>`to_char(${categories.createdAt},'Month ddth, yyyy')`,
-        billboardLabel: sql<string>`${billBoards.label}`,
       })
       .from(categories)
-      .where(
-        sql`${categories.storeId} = ${storeId} and ${categories.id} = ${categoryId}`
-      )
-      .innerJoin(billBoards, sql`${billBoards.id}=${categories.billboardId}`);
+      .where(sql`${sizes.storeId} = ${storeId} and ${sizes.id} = ${sizeId}`)
+      .orderBy(asc(sizes.createdAt));
 
-    if (!category) {
-      return new Response('Category not found', { status: NOT_FOUND });
+    if (!size) {
+      return new Response('Size not found', { status: NOT_FOUND });
     }
 
-    return NextResponse.json(category);
+    return NextResponse.json(size);
   } catch (e) {
-    console.log('[GET_CATERGORY_BY_ID]', e);
+    console.log('[GET_SIZE_BY_ID]', e);
 
     if (e instanceof ZodError) {
       const pathIssue = e.issues.find(({ path }) => path.includes('query'));

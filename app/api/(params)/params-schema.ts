@@ -72,8 +72,15 @@ function createIdParamQuerySchema<
 }
 
 function createDynamicPathSchema<K extends string, Schema extends AnyZodObject>(
-  parser: ParamDeferQuerySchemaFn<K, Schema>
+  parser: ParamDeferQuerySchemaFn<K, Schema>,
+  parseAsUUID?: boolean
 ) {
+  if (parseAsUUID) {
+    return parser(true).extend({
+      type: nativeEnum(DynamicPath).default(DynamicPath.UUID),
+    });
+  }
+
   return z.union([
     parser(true).extend({
       type: nativeEnum(DynamicPath).default(DynamicPath.UUID),

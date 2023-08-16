@@ -3,7 +3,7 @@ import { CategoriesClient } from './components/category-board-client';
 import { notFound, redirect } from 'next/navigation';
 import { ParamWithStoreId } from '@/app/api/(params)/params-schema';
 import { db } from '@/config/db/neon/initialize';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, asc, eq, sql } from 'drizzle-orm';
 import { stores } from '@/schema/store';
 import { categories } from '@/schema/category';
 import { billBoardRelations, billBoards } from '@/schema/bill-board';
@@ -33,6 +33,7 @@ const CategoriesPage = async ({
       })
       .from(categories)
       .where(sql`${categories.storeId} = ${storeId}`)
+      .orderBy(asc(categories.createdAt))
       .innerJoin(billBoards, sql`${billBoards.id}=${categories.billboardId}`),
   ]);
 

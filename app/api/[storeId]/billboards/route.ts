@@ -14,7 +14,7 @@ import {
 } from 'http-status';
 import { db } from '@/config/db/neon/initialize';
 import { stores } from '@/schema/store';
-import { DrizzleError, eq, sql } from 'drizzle-orm';
+import { DrizzleError, asc, eq, sql } from 'drizzle-orm';
 import { billBoards } from '@/schema/bill-board';
 
 export const createBillboardSchema = object({
@@ -117,7 +117,8 @@ export const GET = async (
         createdAt: sql<string>`to_char(${billBoards.createdAt},'Month ddth, yyyy')`,
       })
       .from(billBoards)
-      .where(eq(billBoards.storeId, storeId));
+      .where(eq(billBoards.storeId, storeId))
+      .orderBy(asc(billBoards.createdAt));
 
     return NextResponse.json(billboards);
   } catch (e) {
