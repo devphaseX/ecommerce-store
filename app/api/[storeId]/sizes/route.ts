@@ -14,10 +14,11 @@ import {
 } from 'http-status';
 import { db } from '@/config/db/neon/initialize';
 import { stores } from '@/schema/store';
-import { DrizzleError, sql } from 'drizzle-orm';
+import { DrizzleError, eq, sql } from 'drizzle-orm';
 
 import { sizes } from '@/schema/size';
 import { sizeFormSchema } from '@/app/(dashboard)/[storeId]/(route)/sizes/[sizeId]/(validators)/size-form-schema';
+import { SizeColumns } from '@/app/(dashboard)/[storeId]/(route)/sizes/components/column';
 
 export const createSizeSchema = object({
   params: storeIdParamSchema,
@@ -104,9 +105,16 @@ export const GET = async (
   try {
     const { storeId } = storeIdParamSchema.parse(params);
 
-    const queriedSizes = await db.query.sizes.findMany({
-      where: sql`${sizes.storeId} = ${storeId}`,
-    });
+    const queriedSizes = await db
+      .select({
+        id: sizes.id,
+        name: sizes.name,
+        value: sizes.value,
+        createdAt: sql<string>`to_char(${sizes.createdAt},'Month ddth, yyyy')`,
+      } satisfies Record<keyof SizeColumns, unknown>)
+      .from(sizes)
+      .where(eq(sizes.storeId, storeId))
+      .orderBy(sizes.createdAt);
 
     return NextResponse.json(queriedSizes);
   } catch (e) {

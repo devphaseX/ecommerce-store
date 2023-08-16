@@ -116,9 +116,16 @@ export const GET = async (
       params: { storeId },
     } = createBillboardSchema.pick({ params: true }).parse({ params });
 
-    const queriedCategories = await db.query.categories.findMany({
-      where: sql`${categories.storeId} = ${storeId}`,
-    });
+    const queriedCategories = await db
+      .select({
+        id: categories.id,
+        name: categories.name,
+        createdAt: sql<string>`to_char(${categories.createdAt},'Month ddth, yyyy')`,
+        billboardLabel: sql<string>`${billBoards.label}`,
+      })
+      .from(categories)
+      .where(sql`${categories.storeId} = ${storeId}`)
+      .innerJoin(billBoards, sql`${billBoards.id}=${categories.billboardId}`);
 
     return NextResponse.json(queriedCategories);
   } catch (e) {

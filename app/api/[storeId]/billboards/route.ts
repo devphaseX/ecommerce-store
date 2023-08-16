@@ -103,10 +103,21 @@ export const GET = async (
       .from(stores)
       .where(sql`${stores.id} = ${storeId}`);
 
+    if (!store) {
+      return new NextResponse('Store not exit', {
+        status: UNPROCESSABLE_ENTITY,
+      });
+    }
+
     const billboards = await db
-      .select()
+      .select({
+        id: billBoards.id,
+        label: billBoards.label,
+        imageUrl: billBoards.imageUrl,
+        createdAt: sql<string>`to_char(${billBoards.createdAt},'Month ddth, yyyy')`,
+      })
       .from(billBoards)
-      .where(eq(billBoards.storeId, store.id));
+      .where(eq(billBoards.storeId, storeId));
 
     return NextResponse.json(billboards);
   } catch (e) {

@@ -32,6 +32,7 @@ const CategoriesPage = async ({
         billboardLabel: sql<string>`${billBoards.label}`,
       })
       .from(categories)
+      .where(sql`${categories.storeId} = ${storeId}`)
       .innerJoin(billBoards, sql`${billBoards.id}=${categories.billboardId}`),
   ]);
 
