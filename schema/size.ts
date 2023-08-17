@@ -2,6 +2,7 @@ import { pgTable, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
 import { stores } from './store';
 import { relations, InferModel } from 'drizzle-orm';
 import { createInsertSchema } from 'drizzle-zod';
+import { string } from 'zod';
 
 const sizes = pgTable('sizes', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -19,10 +20,15 @@ const sizeRelations = relations(sizes, ({ one }) => ({
 }));
 
 const insertSizeSchema = createInsertSchema(sizes, {
-  name: (schema) => schema.name.nonempty(),
-  value: (schema) => schema.value.nonempty(),
+  name: string().nonempty(),
+  value: string().nonempty(),
+});
+
+const requestSizeCreateSchema = insertSizeSchema.pick({
+  name: true,
+  value: true,
 });
 
 type Sizes = InferModel<typeof sizes>;
 export type { Sizes };
-export { sizes, sizeRelations, insertSizeSchema };
+export { sizes, sizeRelations, insertSizeSchema, requestSizeCreateSchema };
