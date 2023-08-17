@@ -16,12 +16,12 @@ import { db } from '@/config/db/neon/initialize';
 import { stores } from '@/schema/store';
 import { DrizzleError, asc, eq, sql } from 'drizzle-orm';
 
-import { insertSizeSchema, sizes } from '@/schema/size';
+import { requestSizeCreateSchema, sizes } from '@/schema/size';
 import { SizeColumns } from '@/app/(dashboard)/[storeId]/(route)/sizes/components/column';
 
 export const createSizeSchema = object({
   params: storeIdParamSchema,
-  body: insertSizeSchema,
+  body: requestSizeCreateSchema,
 });
 
 type CreateSizeParams = Expand<TypeOf<typeof createSizeSchema>['params']>;
@@ -69,7 +69,7 @@ export const POST = async (req: NextRequest, { params }: CreateSizeContext) => {
 
     return NextResponse.json(size);
   } catch (e) {
-    console.log('[POST SIZE]', e);
+    console.log('[POST SIZE]', JSON.stringify(e));
     if (e instanceof ZodError) {
       const pathIssue = e.issues.find(({ path }) => path.includes('query'));
 

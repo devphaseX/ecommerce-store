@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuItem,
 } from '@/components/ui/dropdown-menu';
-import { SizeColumns } from './column';
+import { ProductColumns } from './column';
 import { Button } from '@/components/ui/button';
 import { Copy, Edit, MoreHorizontal, Trash } from 'lucide-react';
 import { useIsClient } from 'usehooks-ts';
@@ -16,20 +16,20 @@ import { useParams, useRouter } from 'next/navigation';
 import { DashboardLayoutParams } from '../../../layout';
 import { AlertModal } from '@/components/models/alert-modal';
 import { useState } from 'react';
-import { useDeleteSize } from '@/hooks/query/useDeleteSize';
+import { useDeleteProduct } from '@/hooks/query/useDeleteProduct';
 
 interface CellActionProps {
-  data: SizeColumns;
+  data: ProductColumns;
 }
 
-const CellAction: React.FC<CellActionProps> = ({ data: { id: sizeId } }) => {
+const CellAction: React.FC<CellActionProps> = ({ data: { id: productId } }) => {
   const activeClientEnv = useIsClient();
   const router = useRouter();
   const [deletePromptModalOpen, setDeletePromptModalOpen] = useState(false);
 
   const { storeId } = useParams() as DashboardLayoutParams;
-  const { onDeleteSize, sizeDeleting } = useDeleteSize({
-    sizeId,
+  const { deleteProduct, deletingProduct } = useDeleteProduct({
+    productId,
     storeId,
     onSuccess: () => setDeletePromptModalOpen(false),
     onSettled: () => router.refresh(),
@@ -37,14 +37,14 @@ const CellAction: React.FC<CellActionProps> = ({ data: { id: sizeId } }) => {
 
   function onCopySaveToClipboard() {
     if (!activeClientEnv) return;
-    navigator.clipboard.writeText(sizeId);
+    navigator.clipboard.writeText(productId);
 
     toast.success('Size ID copied to clipboard');
   }
 
   function onBillboardEdit() {
     if (!activeClientEnv) return;
-    router.push(`/${storeId}/sizes/${sizeId}`);
+    router.push(`/${storeId}/products/${productId}`);
   }
 
   return (
@@ -52,8 +52,8 @@ const CellAction: React.FC<CellActionProps> = ({ data: { id: sizeId } }) => {
       <AlertModal
         modalOpen={deletePromptModalOpen}
         onClose={() => setDeletePromptModalOpen(false)}
-        onConfirm={() => onDeleteSize()}
-        loading={sizeDeleting}
+        onConfirm={() => deleteProduct()}
+        loading={deletingProduct}
       />
 
       <DropdownMenu>

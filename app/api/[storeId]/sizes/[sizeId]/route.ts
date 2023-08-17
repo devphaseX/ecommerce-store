@@ -58,9 +58,7 @@ export const PATCH = async (
     const [size] = await db
       .select()
       .from(sizes)
-      .where(
-        sql`${sizes.id} = ${sizeId} and ${categories.storeId} = ${storeId}`
-      );
+      .where(sql`${sizes.id} = ${sizeId} and ${sizes.storeId} = ${storeId}`);
 
     if (!size) {
       return new NextResponse('Not found', { status: NOT_FOUND });
@@ -187,9 +185,9 @@ export const GET = async (
         id: sizes.id,
         name: sizes.name,
         value: sizes.value,
-        createdAt: sql<string>`to_char(${categories.createdAt},'Month ddth, yyyy')`,
+        createdAt: sql<string>`to_char(${sizes.createdAt},'Month ddth, yyyy')`,
       })
-      .from(categories)
+      .from(sizes)
       .where(sql`${sizes.storeId} = ${storeId} and ${sizes.id} = ${sizeId}`)
       .orderBy(asc(sizes.createdAt));
 

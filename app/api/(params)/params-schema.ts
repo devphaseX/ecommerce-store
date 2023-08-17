@@ -108,6 +108,11 @@ const sizeIdParamSchema = createIdParamQuerySchema({
   defer: true,
 });
 
+const productIdParamSchema = createIdParamQuerySchema({
+  paramName: 'productId',
+  defer: true,
+});
+
 const billboardIdParamSchema = object({
   billboardId: string({
     required_error: getRequiredParamsMessage('billboardId'),
@@ -116,10 +121,22 @@ const billboardIdParamSchema = object({
     .nonempty(),
 });
 
+const colourIdParamSchema = createIdParamQuerySchema({
+  paramName: 'colourId',
+  defer: true,
+});
+
 type ParamWithStoreId = ParamWith<TypeOf<typeof storeIdParamSchema>>;
 type ParamWithBillboardId = ParamWith<TypeOf<typeof billboardIdParamSchema>>;
 type ParamWithCategoryId = ParamWith<TypeOf<typeof categoryIdParamSchema>>;
 type ParamWithSizeId = ParamWith<TypeOf<ReturnType<typeof sizeIdParamSchema>>>;
+type ParamWithColourId = ParamWith<
+  TypeOf<ReturnType<typeof colourIdParamSchema>>
+>;
+
+type ParamWithProductId = ParamWith<
+  TypeOf<ReturnType<typeof productIdParamSchema>>
+>;
 
 export {
   storeIdParamSchema,
@@ -128,10 +145,14 @@ export {
   sizeIdParamSchema,
   DynamicPath,
   createDynamicPathSchema,
+  colourIdParamSchema,
+  productIdParamSchema,
 };
 export type {
   ParamWithStoreId,
   ParamWithBillboardId,
   ParamWithCategoryId,
   ParamWithSizeId,
+  ParamWithProductId,
+  ParamWithColourId,
 };

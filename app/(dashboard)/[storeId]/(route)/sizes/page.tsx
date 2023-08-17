@@ -1,5 +1,5 @@
 import { auth } from '@clerk/nextjs';
-import { SizeClient } from './components/bill-board-client';
+import { SizeClient } from './components/size-board-client';
 import { notFound, redirect } from 'next/navigation';
 import { ParamWithStoreId } from '@/app/api/(params)/params-schema';
 import { db } from '@/config/db/neon/initialize';

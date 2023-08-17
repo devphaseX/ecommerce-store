@@ -108,7 +108,7 @@ export const SizeForm: React.FC<SizeProps> = ({ toUpdateSize }) => {
       toast.error(
         `Something went wrong while ${
           toUpdateSize ? 'updating' : 'creating'
-        } billboard`
+        } Size`
       );
     },
   });
