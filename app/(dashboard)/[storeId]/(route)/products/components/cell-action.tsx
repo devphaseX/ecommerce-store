@@ -39,7 +39,7 @@ const CellAction: React.FC<CellActionProps> = ({ data: { id: productId } }) => {
     if (!activeClientEnv) return;
     navigator.clipboard.writeText(productId);
 
-    toast.success('Size ID copied to clipboard');
+    toast.success('Product ID copied to clipboard');
   }
 
   function onBillboardEdit() {

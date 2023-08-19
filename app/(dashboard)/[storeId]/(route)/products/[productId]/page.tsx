@@ -13,7 +13,7 @@ import {
   storeIdParamSchema,
 } from '@/app/api/(params)/params-schema';
 import { colours } from '@/schema/colour';
-import { products } from '@/schema/product';
+import { CreateProduct, products } from '@/schema/product';
 import { categories } from '@/schema/category';
 import { sizes } from '@/schema/size';
 
@@ -61,7 +61,7 @@ const ProductPage = async ({ params }: ProductPageContext) => {
     <div className="flex flex-col">
       <div className="flex-1 space-y-4 p-8 pt-6">
         <ProductForm
-          toUpdateProduct={product ?? null}
+          toUpdateProduct={(product as any) ?? null}
           categories={queriedCategories}
           sizes={queriedSizes}
           colours={queriedColours}

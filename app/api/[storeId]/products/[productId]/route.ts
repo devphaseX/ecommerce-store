@@ -28,7 +28,6 @@ import {
 } from '@/schema/product';
 import { categories } from '@/schema/category';
 import { sizes } from '@/schema/size';
-import { classifyImageServer } from '@/lib/utils';
 import { images } from '@/schema/image';
 
 const currentRouteParams = storeIdParamSchema.and(
@@ -74,57 +73,45 @@ export const PATCH = async (
     type CreateProductWithOptionalImage = Omit<CreateProduct, 'images'> &
       Partial<Pick<CreateProduct, 'images'>>;
 
-    let updatedProduct = await db.transaction(async (tx) => {
-      const _images = body.images;
-      delete (<CreateProductWithOptionalImage>body).images;
+    const _images = body.images;
+    delete (<CreateProductWithOptionalImage>body).images;
 
-      await tx
-        .insert(products)
-        .values({ ...body, storeId })
-        .returning();
+    await db
+      .update(products)
+      .set({ ...body })
+      .where(eq(products.id, productId))
+      .returning();
 
-      const { newlyAddedImage, removeServerImage } = classifyImageServer({
-        serverSavedImages: retrievedProduct.images,
-        clientSentImages: _images,
-      });
+    await db
+      .delete(images)
+      .where(sql`${images.productId} = ${retrievedProduct.id}`);
 
-      await Promise.all([
-        removeServerImage.map(({ id }) =>
-          tx
-            .delete(images)
-            .where(
-              sql`${images.id} = ${id} and ${images.productId} = ${retrievedProduct.id}`
-            )
-        ),
-      ]);
+    await db.insert(images).values(
+      _images.map(({ url }) => ({
+        productId: retrievedProduct.id,
+        url,
+      }))
+    );
 
-      await tx.insert(images).values(
-        newlyAddedImage.map(({ url }) => ({
-          productId: retrievedProduct.id,
-          url,
-        }))
-      );
-
-      return await db
-        .select({
-          id: products.id,
-          name: products.name,
-          price: products.price,
-          category: categories.name,
-          colour: colours.value,
-          size: sizes.name,
-          isArchieved: products.isArchieved,
-          isFeatured: products.isFeatured,
-          updatedAt: sql<string>`to_char(${products.createdAt},'Month ddth, yyyy')`,
-          createdAt: sql<string>`to_char(${products.createdAt},'Month ddth, yyyy')`,
-        } satisfies Record<keyof ResponseProduct, unknown>)
-        .from(products)
-        .where(eq(products.storeId, storeId))
-        .innerJoin(categories, eq(products.categoryId, categories.id))
-        .innerJoin(colours, eq(products.colourId, colours.id))
-        .innerJoin(sizes, eq(products.sizeId, sizes.id))
-        .orderBy(asc(products.createdAt));
-    });
+    let updatedProduct = await db
+      .select({
+        id: products.id,
+        name: products.name,
+        price: products.price,
+        category: categories.name,
+        colour: colours.value,
+        size: sizes.name,
+        isArchieved: products.isArchieved,
+        isFeatured: products.isFeatured,
+        updatedAt: sql<string>`to_char(${products.createdAt},'Month ddth, yyyy')`,
+        createdAt: sql<string>`to_char(${products.createdAt},'Month ddth, yyyy')`,
+      } satisfies Record<keyof ResponseProduct, unknown>)
+      .from(products)
+      .where(eq(products.id, productId))
+      .innerJoin(categories, eq(products.categoryId, categories.id))
+      .innerJoin(colours, eq(products.colourId, colours.id))
+      .innerJoin(sizes, eq(products.sizeId, sizes.id))
+      .orderBy(asc(products.createdAt));
 
     return NextResponse.json(updatedProduct);
   } catch (e) {
@@ -177,17 +164,17 @@ export const DELETE = async (
         status: UNPROCESSABLE_ENTITY,
       });
     }
-    let colour = await db.query.products.findFirst({
+    let product = await db.query.products.findFirst({
       where: sql`${products.storeId} = ${storeId} and ${products.id} = ${productId}`,
     });
 
-    if (!colour) {
+    if (!product) {
       return new NextResponse('Product not exist', {
         status: UNPROCESSABLE_ENTITY,
       });
     }
 
-    await db.delete(products).where(sql`${products.id} = ${products}`);
+    await db.delete(products).where(sql`${products.id} = ${product.id}`);
 
     return new NextResponse('Product deleted succesfully');
   } catch (e) {

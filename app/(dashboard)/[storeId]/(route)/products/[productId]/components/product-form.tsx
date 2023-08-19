@@ -10,13 +10,14 @@ import { useMutation } from '@tanstack/react-query';
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import toast from 'react-hot-toast';
 import { redirect, useParams, useRouter } from 'next/navigation';
@@ -39,6 +40,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface ProductProps {
   toUpdateProduct:
@@ -93,7 +95,7 @@ export const ProductForm: React.FC<ProductProps> = ({
   } = useMutation({
     mutationFn: async (data: CreateProduct) => {
       let response: AxiosResponse<Products>;
-
+      console.log({ data });
       if (toUpdateProduct) {
         response = await axios.patch<Products>(
           `/api/${storeId}/products/${productId}`,
@@ -315,7 +317,7 @@ export const ProductForm: React.FC<ProductProps> = ({
 
             <FormField
               control={productForm.control}
-              name="categoryId"
+              name="colourId"
               render={({ field }) => {
                 return (
                   <FormItem>
@@ -324,7 +326,7 @@ export const ProductForm: React.FC<ProductProps> = ({
                       disabled={actionProductLoading}
                       onValueChange={field.onChange}
                       value={
-                        field.value || toUpdateProduct?.colour.name || undefined
+                        field.value || toUpdateProduct?.colour.id || undefined
                       }
                     >
                       <FormControl>
@@ -334,7 +336,7 @@ export const ProductForm: React.FC<ProductProps> = ({
                       </FormControl>
 
                       <SelectContent>
-                        {categories?.map(({ name, id }) => (
+                        {colours.map(({ name, id }) => (
                           <SelectItem key={id} value={id}>
                             {name}
                           </SelectItem>
@@ -342,6 +344,50 @@ export const ProductForm: React.FC<ProductProps> = ({
                       </SelectContent>
                     </Select>
                     <FormMessage />
+                  </FormItem>
+                );
+              }}
+            />
+            <FormField
+              control={productForm.control}
+              name="isFeatured"
+              render={({ field }) => {
+                return (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                    <FormControl>
+                      <Checkbox
+                        checked={Boolean(field.value)}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>Featured</FormLabel>
+                      <FormDescription>
+                        This product will appear on the home page
+                      </FormDescription>
+                    </div>
+                  </FormItem>
+                );
+              }}
+            />
+            <FormField
+              control={productForm.control}
+              name="isArchieved"
+              render={({ field }) => {
+                return (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                    <FormControl>
+                      <Checkbox
+                        checked={!!field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>Archieved</FormLabel>
+                      <FormDescription>
+                        This product will not appear any where in the store
+                      </FormDescription>
+                    </div>
                   </FormItem>
                 );
               }}
