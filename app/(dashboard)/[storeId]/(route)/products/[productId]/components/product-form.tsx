@@ -17,7 +17,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import toast from 'react-hot-toast';
 import { redirect, useParams, useRouter } from 'next/navigation';

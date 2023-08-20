@@ -7,13 +7,12 @@ import {
   DynamicPath,
   ParamWithColourId,
   ParamWithStoreId,
-  colourIdParamSchema,
   createDynamicPathSchema,
   productIdParamSchema,
   storeIdParamSchema,
 } from '@/app/api/(params)/params-schema';
 import { colours } from '@/schema/colour';
-import { CreateProduct, products } from '@/schema/product';
+import { products } from '@/schema/product';
 import { categories } from '@/schema/category';
 import { sizes } from '@/schema/size';
 
