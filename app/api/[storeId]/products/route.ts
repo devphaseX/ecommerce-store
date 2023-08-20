@@ -20,7 +20,6 @@ import { DrizzleError, and, asc, eq, sql } from 'drizzle-orm';
 import { colours } from '@/schema/colour';
 import {
   CreateProduct,
-  Products,
   ResponseProduct,
   createProductSchema,
   products,
@@ -156,20 +155,12 @@ interface GetProductContext {
   searchParams: GetProductSearchParams;
 }
 
-export const GET = async (
-  req: NextRequest,
-  { params, searchParams }: GetProductContext
-) => {
+export const GET = async (req: NextRequest, { params }: GetProductContext) => {
   try {
     const { storeId } = storeIdParamSchema.parse(params);
 
-    const query = <GetProductSearchParams>(
-      Object.fromEntries(
-        new URLSearchParams(
-          (searchParams && <[string, string][]>Object.entries(searchParams)) ||
-            req.url
-        )
-      )
+    const query: GetProductSearchParams = Object.fromEntries(
+      new URLSearchParams(req.url)
     );
 
     const { categoryId, sizeId, colourId, isArchieved, isFeatured } = query;
@@ -219,23 +210,26 @@ export const GET = async (
       .orderBy(asc(products.createdAt));
 
     type PartialSelectProduct = (typeof queriedProducts)[0];
+    type ImageInfo = Pick<Image, 'url'>;
     type ImageCollapseProduct = Expand<
       Omit<PartialSelectProduct, 'image'> & {
-        images?: Image[];
+        images?: ImageInfo[];
+        image?: ImageInfo | null;
       }
     >;
 
     const rows = queriedProducts.reduce((acc, cur) => {
-      let prev = <ImageCollapseProduct & { image: Image }>(acc[cur.id] ||= cur);
-      const images: Array<Image> = (prev.images ||= []);
-      images.push(prev.image);
-      //@ts-ignore
+      let prev = <ImageCollapseProduct>(acc[cur.id] ||= cur) ?? acc[cur.id];
+
+      const images: Array<{ url: string }> = (prev.images ||= []);
+
+      if (cur.image) images.push(cur.image);
       delete prev.image;
 
       return acc;
     }, <Record<string, ImageCollapseProduct>>{});
-    console.log(rows);
-    return NextResponse.json(rows);
+
+    return NextResponse.json(Object.values(rows));
   } catch (e) {
     console.log('[GET_PRODUCTS]', e);
 
