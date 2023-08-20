@@ -79,8 +79,7 @@ export const PATCH = async (
     await db
       .update(products)
       .set({ ...body })
-      .where(eq(products.id, productId))
-      .returning();
+      .where(eq(products.id, productId));
 
     await db
       .delete(images)
