@@ -50,6 +50,8 @@ export const MainNav: FC<MainNavProps> = ({ className, ...props }) => {
     ),
     createInternalRoute(`/${params.storeId}/sizes`, 'Sizes', getActivePath),
     createInternalRoute(`/${params.storeId}/colours`, 'Colours', getActivePath),
+    createInternalRoute(`/${params.storeId}/orders`, 'Orders', getActivePath),
+
     createInternalRoute(
       `/${params.storeId}/products`,
       'Products',

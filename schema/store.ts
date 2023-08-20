@@ -6,6 +6,7 @@ import { sizes } from './size';
 import { createInsertSchema } from 'drizzle-zod';
 import { string } from 'zod';
 import { colours } from './colour';
+import { orders } from './order';
 
 export const stores = pgTable('stores', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -26,4 +27,5 @@ export const storeRelations = relations(stores, ({ many }) => ({
   categories: many(categories),
   sizes: many(sizes),
   colours: many(colours),
+  orders: many(orders),
 }));

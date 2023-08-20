@@ -22,13 +22,14 @@ import { stores } from '@/schema/store';
 import { colours } from '@/schema/colour';
 import {
   CreateProduct,
+  Products,
   ResponseProduct,
   createProductSchema,
   products,
 } from '@/schema/product';
 import { categories } from '@/schema/category';
 import { sizes } from '@/schema/size';
-import { images } from '@/schema/image';
+import { Image, images } from '@/schema/image';
 
 const currentRouteParams = storeIdParamSchema.and(
   createDynamicPathSchema(productIdParamSchema, true)
@@ -65,7 +66,6 @@ export const PATCH = async (
       where: sql`${products.id} = ${productId} and ${products.storeId} = ${storeId}`,
       with: { images: true },
     });
-
     if (!retrievedProduct) {
       return new NextResponse('Not found', { status: NOT_FOUND });
     }
@@ -216,29 +216,38 @@ export const GET = async (
       return new NextResponse('Store not exist', { status: UNAUTHORIZED });
     }
 
-    const [product] = await db
-      .select({
-        id: products.id,
-        name: products.name,
-        price: products.price,
-        category: categories.name,
-        colour: colours.value,
-        size: sizes.name,
-        isArchieved: products.isArchieved,
-        isFeatured: products.isFeatured,
-        updatedAt: sql<string>`to_char(${products.createdAt},'Month ddth, yyyy')`,
-        createdAt: sql<string>`to_char(${products.createdAt},'Month ddth, yyyy')`,
-      } satisfies Record<keyof ResponseProduct, unknown>)
-      .from(products)
-      .where(and(eq(products.storeId, storeId), eq(products.id, productId)))
-      .innerJoin(categories, eq(products.categoryId, categories.id))
-      .innerJoin(colours, eq(products.colourId, colours.id))
-      .innerJoin(sizes, eq(products.sizeId, sizes.id))
-      .orderBy(asc(products.createdAt));
+    const [[product], queriedImages] = await Promise.all([
+      db
+        .select({
+          id: products.id,
+          name: products.name,
+          price: products.price,
+          categoryId: products.categoryId,
+          category: categories.name,
+          colourId: products.colourId,
+          colour: colours.value,
+          sizeId: products.sizeId,
+          isArchieved: products.isArchieved,
+          isFeatured: products.isFeatured,
+          updatedAt: sql<string>`to_char(${products.createdAt},'Month ddth, yyyy')`,
+          createdAt: sql<string>`to_char(${products.createdAt},'Month ddth, yyyy')`,
+        } satisfies Record<keyof ResponseProduct & { categeoryId: string; colourId: string }, unknown>)
+        .from(products)
+
+        .where(and(eq(products.storeId, storeId), eq(products.id, productId)))
+        .innerJoin(categories, eq(products.categoryId, categories.id))
+        .innerJoin(colours, eq(products.colourId, colours.id))
+        .innerJoin(sizes, eq(products.sizeId, sizes.id))
+        .orderBy(asc(products.createdAt)),
+      db.query.images.findMany({ where: eq(images.productId, productId) }),
+    ]);
 
     if (!product) {
       return new Response('Product not found', { status: NOT_FOUND });
     }
+
+    //@ts-ignore
+    (<Products & { images: Array<Image> }>product).images = queriedImages;
 
     return NextResponse.json(product);
   } catch (e) {

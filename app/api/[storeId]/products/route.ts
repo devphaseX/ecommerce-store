@@ -174,7 +174,7 @@ export const GET = async (req: NextRequest, { params }: GetProductContext) => {
       isArchieved:
         typeof isArchieved !== 'undefined'
           ? eq(products.isArchieved, isArchieved)
-          : null,
+          : eq(products.isArchieved, false),
       isFeatured:
         typeof isFeatured !== 'undefined'
           ? eq(products.isFeatured, isFeatured)

@@ -6,3 +6,4 @@ export * from './size';
 export * from './colour';
 export * from './product';
 export * from './image';
+export * from './orderItem';

@@ -14,6 +14,7 @@ import { InferModel, relations } from 'drizzle-orm';
 import { images } from './image';
 import { createInsertSchema } from 'drizzle-zod';
 import { TypeOf, array, number, object, string, z } from 'zod';
+import { orderItems } from './orderItem';
 
 export const products = pgTable('products', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -45,6 +46,7 @@ export const productRelations = relations(products, ({ many, one }) => ({
     references: [colours.id],
   }),
 
+  orderItems: many(orderItems),
   size: one(sizes, {
     fields: [products.sizeId],
     references: [sizes.id],
