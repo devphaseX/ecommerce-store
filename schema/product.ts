@@ -65,11 +65,13 @@ export const createProductSchema = createInsertSchema(products, {
   colourId: z.string().uuid(),
   sizeId: z.string().uuid(),
   categoryId: z.string().uuid(),
-}).extend({
-  images: array(
-    object({ id: string().uuid().optional(), url: string().url() })
-  ),
-});
+})
+  .extend({
+    images: array(
+      object({ id: string().uuid().optional(), url: string().url() })
+    ).nonempty({ message: 'Image is required' }),
+  })
+  .omit({ id: true, storeId: true, createdAt: true, updatedAt: true });
 
 export type CreateProduct = TypeOf<typeof createProductSchema>;
 
