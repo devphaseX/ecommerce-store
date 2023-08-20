@@ -25,7 +25,7 @@ export const useDeleteItem = ({
       }
     },
     onSuccess: () => {
-      toast.success(`Category {${routeName}} delete succesfully`);
+      toast.success(`Category ${routeName} delete succesfully`);
       onSuccess?.();
     },
 
