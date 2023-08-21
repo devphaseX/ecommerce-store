@@ -32,13 +32,14 @@ const OrdersPage = async ({ params: { storeId } }: OrderPageContext) => {
         storeId: orders.storeId,
         totalPrice: sql<number>`sum(${products.price})`,
         productNames: sql<string>`string_agg(${products.name}, ', ')`,
+        products: sql`json_agg(json_build_object('id', ${products.id}, 'name', ${products.name}, 'price', ${products.price}))`,
         createdAt: sql<string>`to_char(${orders.createdAt},'Month ddth, yyyy')`,
         updatedAt: sql<string>`to_char(${orders.updatedAt},'Month ddth, yyyy')`,
       })
       .from(orders)
       .innerJoin(orderItems, eq(orderItems.productId, orders.id))
       .innerJoin(products, eq(orderItems.productId, products.id))
-      .groupBy(({ id }) => id),
+      .groupBy(orders.id),
   ]);
 
   if (!store) return notFound();

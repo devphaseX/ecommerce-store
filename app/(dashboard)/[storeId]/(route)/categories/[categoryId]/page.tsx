@@ -3,43 +3,46 @@ import { notFound, redirect } from 'next/navigation';
 import { db } from '@/config/db/neon/initialize';
 import { sql } from 'drizzle-orm';
 import { CategoryForm } from './components/category-form';
-import { SingleCategoryParam } from './(validators)/param-schema';
 import {
-  categoryIdParamSchema,
-  storeIdParamSchema,
-} from '@/app/api/(params)/params-schema';
+  CategoryPageParams,
+  categoryPageParamsValidator,
+} from './(validators)/param-schema';
+import { DynamicPath } from '@/app/api/(params)/params-schema';
 import { stores } from '@/schema/store';
 import { Category, categories } from '@/schema/category';
-import { BillBoard, billBoards } from '@/schema/bill-board';
+import { billBoards } from '@/schema/bill-board';
 
-interface CategoryParams extends SingleCategoryParam {}
 interface CategoryPageContext extends LayoutPageBaseProps {
-  params: CategoryParams;
+  params: CategoryPageParams;
 }
 
 const CategoryPage = async ({ params }: CategoryPageContext) => {
   const { userId } = auth();
   if (!userId) return redirect('/sign-in');
 
-  if (!storeIdParamSchema.safeParse(params).success) {
-    return notFound();
+  let paramResult!: CategoryPageParams;
+  {
+    const _paramsResult = categoryPageParamsValidator.safeParse(params);
+    if (!_paramsResult.success) return notFound();
+    paramResult = _paramsResult.data;
   }
 
+  const { storeId, type, categoryId } = paramResult;
+
   const store = await db.query.stores.findFirst({
-    where: sql`${stores.id} = ${params.storeId}`,
+    where: sql`${stores.id} = ${storeId}`,
   });
 
   if (!store) return notFound();
-
-  const triggerCategoryUpdate = categoryIdParamSchema.safeParse(params).success;
 
   let category: Category | null | undefined;
   let queriedBillboards = await db.query.billBoards.findMany({
     where: sql`${billBoards.storeId} = ${params.storeId}`,
   });
-  if (triggerCategoryUpdate) {
+
+  if (type === DynamicPath.UUID) {
     category = await db.query.categories.findFirst({
-      where: sql`${categories.id} = ${params.categoryId} and ${categories.storeId} = ${params.storeId}`,
+      where: sql`${categories.id} = ${categoryId} and ${storeId} = ${storeId}`,
     });
 
     if (!category) return notFound();

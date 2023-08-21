@@ -195,7 +195,8 @@ export const GET = async (req: NextRequest, { params }: GetProductContext) => {
         isFeatured: products.isFeatured,
         updatedAt: sql<string>`to_char(${products.createdAt},'Month ddth, yyyy')`,
         createdAt: sql<string>`to_char(${products.createdAt},'Month ddth, yyyy')`,
-        image: { url: images.url },
+        images: sql`json_agg(
+          json_build_object('id', ${images.id}, 'imageUrl', ${images.url}))`,
       } satisfies Record<keyof ResponseProduct & { categeoryId: string; colourId: string }, unknown>)
       .from(products)
       .where(
@@ -206,30 +207,11 @@ export const GET = async (req: NextRequest, { params }: GetProductContext) => {
       .innerJoin(categories, eq(products.categoryId, categories.id))
       .innerJoin(colours, eq(products.colourId, colours.id))
       .innerJoin(sizes, eq(products.sizeId, sizes.id))
-      .leftJoin(images, eq(products.id, images.productId))
+      .innerJoin(images, eq(products.id, images.productId))
+      .groupBy(products.id, categories.name, colours.value)
       .orderBy(asc(products.createdAt));
 
-    type PartialSelectProduct = (typeof queriedProducts)[0];
-    type ImageInfo = Pick<Image, 'url'>;
-    type ImageCollapseProduct = Expand<
-      Omit<PartialSelectProduct, 'image'> & {
-        images?: ImageInfo[];
-        image?: ImageInfo | null;
-      }
-    >;
-
-    const rows = queriedProducts.reduce((acc, cur) => {
-      let prev = <ImageCollapseProduct>(acc[cur.id] ||= cur) ?? acc[cur.id];
-
-      const images: Array<{ url: string }> = (prev.images ||= []);
-
-      if (cur.image) images.push(cur.image);
-      delete prev.image;
-
-      return acc;
-    }, <Record<string, ImageCollapseProduct>>{});
-
-    return NextResponse.json(Object.values(rows));
+    return NextResponse.json(queriedProducts);
   } catch (e) {
     console.log('[GET_PRODUCTS]', e);
 

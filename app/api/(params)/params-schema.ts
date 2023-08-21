@@ -100,7 +100,7 @@ const storeIdParamSchema = createIdParamQuerySchema({
 
 const categoryIdParamSchema = createIdParamQuerySchema({
   paramName: 'categoryId',
-  defer: false,
+  defer: true,
 });
 
 const sizeIdParamSchema = createIdParamQuerySchema({
@@ -128,7 +128,9 @@ const colourIdParamSchema = createIdParamQuerySchema({
 
 type ParamWithStoreId = ParamWith<TypeOf<typeof storeIdParamSchema>>;
 type ParamWithBillboardId = ParamWith<TypeOf<typeof billboardIdParamSchema>>;
-type ParamWithCategoryId = ParamWith<TypeOf<typeof categoryIdParamSchema>>;
+type ParamWithCategoryId = ParamWith<
+  TypeOf<ReturnType<typeof categoryIdParamSchema>>
+>;
 type ParamWithSizeId = ParamWith<TypeOf<ReturnType<typeof sizeIdParamSchema>>>;
 type ParamWithColourId = ParamWith<
   TypeOf<ReturnType<typeof colourIdParamSchema>>

@@ -228,6 +228,8 @@ export const GET = async (
           sizeId: products.sizeId,
           isArchieved: products.isArchieved,
           isFeatured: products.isFeatured,
+          images: sql`json_agg(
+            json_build_object('id', ${images.id}, 'imageUrl', ${images.url}))`,
           updatedAt: sql<string>`to_char(${products.createdAt},'Month ddth, yyyy')`,
           createdAt: sql<string>`to_char(${products.createdAt},'Month ddth, yyyy')`,
         } satisfies Record<keyof ResponseProduct & { categeoryId: string; colourId: string }, unknown>)
@@ -237,6 +239,8 @@ export const GET = async (
         .innerJoin(categories, eq(products.categoryId, categories.id))
         .innerJoin(colours, eq(products.colourId, colours.id))
         .innerJoin(sizes, eq(products.sizeId, sizes.id))
+        .innerJoin(images, eq(products.id, images.productId))
+        .groupBy(products.id, categories.name, colours.value)
         .orderBy(asc(products.createdAt)),
       db.query.images.findMany({ where: eq(images.productId, productId) }),
     ]);
@@ -244,9 +248,6 @@ export const GET = async (
     if (!product) {
       return new Response('Product not found', { status: NOT_FOUND });
     }
-
-    //@ts-ignore
-    (<Products & { images: Array<Image> }>product).images = queriedImages;
 
     return NextResponse.json(product);
   } catch (e) {

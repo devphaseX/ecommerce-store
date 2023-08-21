@@ -1,11 +1,14 @@
 import {
   categoryIdParamSchema,
+  createDynamicPathSchema,
   storeIdParamSchema,
 } from '@/app/api/(params)/params-schema';
 import { TypeOf } from 'zod';
 
-const singleCategoryParamSchema = storeIdParamSchema.and(categoryIdParamSchema);
-type SingleCategoryParam = TypeOf<typeof singleCategoryParamSchema>;
+const categoryPageParamsValidator = storeIdParamSchema.and(
+  createDynamicPathSchema(categoryIdParamSchema)
+);
+type CategoryPageParams = TypeOf<typeof categoryPageParamsValidator>;
 
-export { singleCategoryParamSchema };
-export type { SingleCategoryParam };
+export { categoryPageParamsValidator };
+export type { CategoryPageParams };

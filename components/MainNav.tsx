@@ -34,11 +34,6 @@ export const MainNav: FC<MainNavProps> = ({ className, ...props }) => {
 
   const routes: Array<InternalRoute> = [
     createInternalRoute(
-      `/${params.storeId}/settings`,
-      'Settings',
-      getActivePath
-    ),
-    createInternalRoute(
       `/${params.storeId}/billboards`,
       'Billboards',
       getActivePath
@@ -60,6 +55,11 @@ export const MainNav: FC<MainNavProps> = ({ className, ...props }) => {
     createInternalRoute(
       `/${params.storeId}/overviews`,
       'Overview',
+      getActivePath
+    ),
+    createInternalRoute(
+      `/${params.storeId}/settings`,
+      'Settings',
       getActivePath
     ),
   ];

@@ -152,8 +152,14 @@ export const GET = async (
   try {
     const { billboardId, storeId } = billboardParamsSchema.parse(params);
 
+    const { _, ...selectedFields } = billBoards;
+
     const [billboard] = await db
-      .select()
+      .select({
+        ...selectedFields,
+        storeName: stores.name,
+        storeId: stores.id,
+      })
       .from(billBoards)
       .where(
         and(eq(billBoards.storeId, storeId), eq(billBoards.id, billboardId))
