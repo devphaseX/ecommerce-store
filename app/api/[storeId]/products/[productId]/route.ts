@@ -215,35 +215,32 @@ export const GET = async (
       return new NextResponse('Store not exist', { status: UNAUTHORIZED });
     }
 
-    const [[product], queriedImages] = await Promise.all([
-      db
-        .select({
-          id: products.id,
-          name: products.name,
-          price: products.price,
-          categoryId: products.categoryId,
-          category: categories.name,
-          colourId: products.colourId,
-          colour: colours.value,
-          sizeId: products.sizeId,
-          isArchieved: products.isArchieved,
-          isFeatured: products.isFeatured,
-          images: sql`json_agg(
+    const [product] = await db
+      .select({
+        id: products.id,
+        name: products.name,
+        price: products.price,
+        categoryId: products.categoryId,
+        category: categories.name,
+        colourId: products.colourId,
+        colour: colours.value,
+        sizeId: products.sizeId,
+        isArchieved: products.isArchieved,
+        isFeatured: products.isFeatured,
+        images: sql<Array<Pick<Image, 'id' | 'url'>>>`json_agg(
             json_build_object('id', ${images.id}, 'imageUrl', ${images.url}))`,
-          updatedAt: sql<string>`to_char(${products.createdAt},'Month ddth, yyyy')`,
-          createdAt: sql<string>`to_char(${products.createdAt},'Month ddth, yyyy')`,
-        } satisfies Record<keyof ResponseProduct & { categeoryId: string; colourId: string }, unknown>)
-        .from(products)
+        updatedAt: sql<string>`to_char(${products.createdAt},'Month ddth, yyyy')`,
+        createdAt: sql<string>`to_char(${products.createdAt},'Month ddth, yyyy')`,
+      } satisfies Record<keyof ResponseProduct & { categeoryId: string; colourId: string }, unknown>)
+      .from(products)
 
-        .where(and(eq(products.storeId, storeId), eq(products.id, productId)))
-        .innerJoin(categories, eq(products.categoryId, categories.id))
-        .innerJoin(colours, eq(products.colourId, colours.id))
-        .innerJoin(sizes, eq(products.sizeId, sizes.id))
-        .innerJoin(images, eq(products.id, images.productId))
-        .groupBy(products.id, categories.name, colours.value)
-        .orderBy(asc(products.createdAt)),
-      db.query.images.findMany({ where: eq(images.productId, productId) }),
-    ]);
+      .where(and(eq(products.storeId, storeId), eq(products.id, productId)))
+      .innerJoin(categories, eq(products.categoryId, categories.id))
+      .innerJoin(colours, eq(products.colourId, colours.id))
+      .innerJoin(sizes, eq(products.sizeId, sizes.id))
+      .innerJoin(images, eq(products.id, images.productId))
+      .groupBy(products.id, categories.name, colours.value)
+      .orderBy(asc(products.createdAt));
 
     if (!product) {
       return new Response('Product not found', { status: NOT_FOUND });

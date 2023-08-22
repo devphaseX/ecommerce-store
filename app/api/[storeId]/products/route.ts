@@ -195,8 +195,8 @@ export const GET = async (req: NextRequest, { params }: GetProductContext) => {
         isFeatured: products.isFeatured,
         updatedAt: sql<string>`to_char(${products.createdAt},'Month ddth, yyyy')`,
         createdAt: sql<string>`to_char(${products.createdAt},'Month ddth, yyyy')`,
-        images: sql`json_agg(
-          json_build_object('id', ${images.id}, 'imageUrl', ${images.url}))`,
+        images: sql<Array<Pick<Image, 'id' | 'url'>>>`json_agg(
+          json_build_object('id', ${images.id}, 'url', ${images.url}))`,
       } satisfies Record<keyof ResponseProduct & { categeoryId: string; colourId: string }, unknown>)
       .from(products)
       .where(
