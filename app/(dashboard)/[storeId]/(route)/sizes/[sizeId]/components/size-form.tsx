@@ -174,7 +174,7 @@ export const SizeForm: React.FC<SizeProps> = ({ toUpdateSize }) => {
               render={({ field }) => {
                 return (
                   <FormItem>
-                    <FormLabel>Label</FormLabel>
+                    <FormLabel>Value</FormLabel>
                     <FormControl>
                       <Input
                         disabled={actionOnBillboardLoading}

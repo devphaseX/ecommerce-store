@@ -121,6 +121,7 @@ export const GET = async (
         name: categories.name,
         createdAt: sql<string>`to_char(${categories.createdAt},'Month ddth, yyyy')`,
         billboardLabel: sql<string>`${billBoards.label}`,
+        billboard: billBoards,
       })
       .from(categories)
       .where(sql`${categories.storeId} = ${storeId}`)

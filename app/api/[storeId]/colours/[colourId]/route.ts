@@ -22,7 +22,7 @@ import { DrizzleError, asc, eq, sql } from 'drizzle-orm';
 import { stores } from '@/schema/store';
 import { colours, requestColourCreateSchema } from '@/schema/colour';
 
-const categoryParamsSchema = storeIdParamSchema.and(categoryIdParamSchema);
+const categoryParamsSchema = storeIdParamSchema.and(categoryIdParamSchema());
 type CategoryParams = Expand<TypeOf<typeof categoryParamsSchema>>;
 const requestColourUpdateSchema = requestColourCreateSchema.pick({
   name: true,

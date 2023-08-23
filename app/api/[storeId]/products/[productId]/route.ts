@@ -223,12 +223,14 @@ export const GET = async (
         categoryId: products.categoryId,
         category: categories.name,
         colourId: products.colourId,
+        colourName: colours.name,
         colour: colours.value,
+        size: sizes.name,
         sizeId: products.sizeId,
         isArchieved: products.isArchieved,
         isFeatured: products.isFeatured,
         images: sql<Array<Pick<Image, 'id' | 'url'>>>`json_agg(
-            json_build_object('id', ${images.id}, 'imageUrl', ${images.url}))`,
+            json_build_object('id', ${images.id}, 'url', ${images.url}))`,
         updatedAt: sql<string>`to_char(${products.createdAt},'Month ddth, yyyy')`,
         createdAt: sql<string>`to_char(${products.createdAt},'Month ddth, yyyy')`,
       } satisfies Record<keyof ResponseProduct & { categeoryId: string; colourId: string }, unknown>)
@@ -239,7 +241,13 @@ export const GET = async (
       .innerJoin(colours, eq(products.colourId, colours.id))
       .innerJoin(sizes, eq(products.sizeId, sizes.id))
       .innerJoin(images, eq(products.id, images.productId))
-      .groupBy(products.id, categories.name, colours.value)
+      .groupBy(
+        products.id,
+        categories.name,
+        colours.value,
+        colours.name,
+        sizes.name
+      )
       .orderBy(asc(products.createdAt));
 
     if (!product) {

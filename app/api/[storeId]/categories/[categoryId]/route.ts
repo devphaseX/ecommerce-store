@@ -19,7 +19,7 @@ import { stores } from '@/schema/store';
 import { categories } from '@/schema/category';
 import { categoryFormSchema } from '@/app/(dashboard)/[storeId]/(route)/categories/[categoryId]/(validators)/category-form-schema';
 
-const categoryParamsSchema = storeIdParamSchema.and(categoryIdParamSchema);
+const categoryParamsSchema = storeIdParamSchema.and(categoryIdParamSchema());
 type CategoryParams = Expand<TypeOf<typeof categoryParamsSchema>>;
 
 const updateCategorySchema = object({
@@ -187,6 +187,7 @@ export const GET = async (
         name: categories.name,
         createdAt: sql<string>`to_char(${categories.createdAt},'Month ddth, yyyy')`,
         billboardLabel: sql<string>`${billBoards.label}`,
+        billboard: billBoards,
       })
       .from(categories)
       .where(

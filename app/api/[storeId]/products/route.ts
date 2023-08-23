@@ -16,7 +16,7 @@ import {
 } from 'http-status';
 import { db } from '@/config/db/neon/initialize';
 import { stores } from '@/schema/store';
-import { DrizzleError, and, asc, eq, sql } from 'drizzle-orm';
+import { DrizzleError, and, asc, eq, not, sql } from 'drizzle-orm';
 import { colours } from '@/schema/colour';
 import {
   CreateProduct,
@@ -149,6 +149,7 @@ interface GetProductSearchParams
     Partial<ParamWithColourId> {
   isFeatured?: boolean;
   isArchieved?: boolean;
+  productSuggestedId?: string;
 }
 interface GetProductContext {
   params: ParamWithStoreId;
@@ -160,10 +161,17 @@ export const GET = async (req: NextRequest, { params }: GetProductContext) => {
     const { storeId } = storeIdParamSchema.parse(params);
 
     const query: GetProductSearchParams = Object.fromEntries(
-      new URLSearchParams(req.url)
+      new URL(req.url).searchParams
     );
 
-    const { categoryId, sizeId, colourId, isArchieved, isFeatured } = query;
+    const {
+      categoryId,
+      sizeId,
+      colourId,
+      isArchieved,
+      isFeatured,
+      productSuggestedId,
+    } = query;
 
     type ProductEqType = ReturnType<typeof eq<typeof products.storeId>>;
 
@@ -179,6 +187,11 @@ export const GET = async (req: NextRequest, { params }: GetProductContext) => {
         typeof isFeatured !== 'undefined'
           ? eq(products.isFeatured, isFeatured)
           : null,
+
+      productSuggestedId:
+        typeof productSuggestedId !== 'undefined'
+          ? not(eq(products.id, productSuggestedId))
+          : null,
     }).filter((value): value is ProductEqType => !!value);
 
     const queriedProducts = await db
@@ -190,7 +203,9 @@ export const GET = async (req: NextRequest, { params }: GetProductContext) => {
         category: categories.name,
         colourId: products.colourId,
         colour: colours.value,
+        colourName: colours.name,
         sizeId: products.sizeId,
+        size: sizes.name,
         isArchieved: products.isArchieved,
         isFeatured: products.isFeatured,
         updatedAt: sql<string>`to_char(${products.createdAt},'Month ddth, yyyy')`,
@@ -208,9 +223,16 @@ export const GET = async (req: NextRequest, { params }: GetProductContext) => {
       .innerJoin(colours, eq(products.colourId, colours.id))
       .innerJoin(sizes, eq(products.sizeId, sizes.id))
       .innerJoin(images, eq(products.id, images.productId))
-      .groupBy(products.id, categories.name, colours.value)
+      .groupBy(
+        products.id,
+        categories.name,
+        colours.value,
+        colours.name,
+        sizes.name
+      )
       .orderBy(asc(products.createdAt));
 
+    console.log({ queriedProducts });
     return NextResponse.json(queriedProducts);
   } catch (e) {
     console.log('[GET_PRODUCTS]', e);
