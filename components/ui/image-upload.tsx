@@ -59,7 +59,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       <CldUploadWidget onUpload={onUpload} uploadPreset="ecommerce-store">
         {({ open }) => {
           const onClick = () => {
-            open();
+            open?.();
           };
 
           return (
