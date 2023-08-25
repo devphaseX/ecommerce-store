@@ -232,7 +232,6 @@ export const GET = async (req: NextRequest, { params }: GetProductContext) => {
       )
       .orderBy(asc(products.createdAt));
 
-    console.log({ queriedProducts });
     return NextResponse.json(queriedProducts);
   } catch (e) {
     console.log('[GET_PRODUCTS]', e);
