@@ -8,6 +8,7 @@ import { stores } from '@/schema/store';
 
 import { orderItems, orders, products } from '@/schema/index';
 
+export const revalidate = 0;
 interface OrderPageContext {
   params: ParamWithStoreId;
   url: string;
@@ -37,7 +38,7 @@ const OrdersPage = async ({ params: { storeId } }: OrderPageContext) => {
         updatedAt: sql<string>`to_char(${orders.updatedAt},'Month ddth, yyyy')`,
       })
       .from(orders)
-      .innerJoin(orderItems, eq(orderItems.productId, orders.id))
+      .innerJoin(orderItems, eq(orderItems.orderId, orders.id))
       .innerJoin(products, eq(orderItems.productId, products.id))
       .groupBy(orders.id),
   ]);
