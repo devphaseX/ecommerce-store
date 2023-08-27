@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { db } from '@/config/db/neon/initialize';
 import { stores } from '../schema';
 import { sql } from 'drizzle-orm';
+import { ThemeToggle } from './theme-toggle';
 
 export const Navbar = async () => {
   const { userId } = auth();
@@ -22,6 +23,7 @@ export const Navbar = async () => {
         <StoreSwitcher ownedStores={userStores} />
         <MainNav className="mx-6" />
         <div className="ml-auto flex items-center space-x-4">
+          <ThemeToggle />
           <UserButton afterSignOutUrl="/" />
         </div>
       </div>
