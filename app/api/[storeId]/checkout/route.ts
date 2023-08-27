@@ -11,7 +11,7 @@ import {
   UNPROCESSABLE_ENTITY,
 } from 'http-status';
 import { db } from '@/config/db/neon/initialize';
-import { eq, inArray } from 'drizzle-orm';
+import { eq, inArray, sql } from 'drizzle-orm';
 import { stores } from '@/schema/store';
 import { ZodError, array, object, string } from 'zod';
 import { products } from '@/schema/product';
@@ -72,6 +72,33 @@ export const POST = async (
       );
     }
 
+    // duplicate order
+    {
+      const queriedOrders = await db.query.orders.findMany({
+        where: eq(orders.storeId, params.storeId),
+        with: {
+          orderItems: { where: inArray(orderItems.productId, productsId) },
+        },
+
+        orderBy: sql`${orders.createdAt} desc`,
+      });
+
+      if (
+        queriedOrders.find(
+          (order) =>
+            (order.orderItems.every((item) =>
+              productsId.find((pId) => item.productId === pId)
+            ) &&
+              !order.createdAt) ||
+            Date.now() - order.createdAt!.getTime() < 2 * 60 * 1000
+        )
+      ) {
+        return new NextResponse('Possible duplicate order', {
+          status: UNPROCESSABLE_ENTITY,
+        });
+      }
+    }
+
     const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] =
       queriedProducts.map((product) => ({
         quantity: 1,
@@ -94,7 +121,6 @@ export const POST = async (
       }))
     );
 
-    console.log({ order });
     const session = await stripe.checkout.sessions.create({
       line_items,
       mode: 'payment',
