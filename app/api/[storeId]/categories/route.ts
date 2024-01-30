@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { Request, NextResponse } from 'next/server';
 import { TypeOf, ZodError, object } from 'zod';
 import { storeIdParamSchema } from '../../(params)/params-schema';
 import { auth } from '@clerk/nextjs';
@@ -28,10 +28,7 @@ interface CreateCategoryContext {
   params: CreateCategoryParams;
 }
 
-export const POST = async (
-  req: NextRequest,
-  { params }: CreateCategoryContext
-) => {
+export const POST = async (req: Request, { params }: CreateCategoryContext) => {
   try {
     const { userId } = auth();
     if (!userId) {
@@ -106,10 +103,7 @@ export const POST = async (
   }
 };
 
-export const GET = async (
-  _req: NextRequest,
-  { params }: CreateCategoryContext
-) => {
+export const GET = async (_req: Request, { params }: CreateCategoryContext) => {
   try {
     const {
       params: { storeId },

@@ -1,5 +1,5 @@
 import { auth } from '@clerk/nextjs';
-import { NextRequest, NextResponse } from 'next/server';
+import { Request, NextResponse } from 'next/server';
 import { CONFLICT, UNPROCESSABLE_ENTITY } from 'http-status';
 import { db } from '@/config/db/neon/initialize';
 import { stores } from '@/schema/store';
@@ -7,7 +7,7 @@ import { ZodError } from 'zod';
 import { createStoreFormSchema } from '../../../validators/create-store';
 import { sql } from 'drizzle-orm';
 
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
     const { userId } = auth();
     if (!userId) {

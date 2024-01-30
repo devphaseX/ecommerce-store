@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { Request, NextResponse } from 'next/server';
 import { TypeOf, ZodError, object } from 'zod';
 import {
   ParamWithSizeId,
@@ -38,7 +38,7 @@ interface UpdateCategoryContext {
 }
 
 export const PATCH = async (
-  req: NextRequest,
+  req: Request,
   { params }: UpdateCategoryContext
 ) => {
   try {
@@ -105,7 +105,7 @@ interface DeleteSizeContext {
   params: ParamWithStoreId & ParamWithSizeId;
 }
 
-export const DELETE = async (_: NextRequest, { params }: DeleteSizeContext) => {
+export const DELETE = async (_: Request, { params }: DeleteSizeContext) => {
   try {
     const { userId } = auth();
     if (!userId) {
@@ -163,10 +163,7 @@ interface GetSizeByIdContext {
   params: ParamWithStoreId & ParamWithSizeId;
 }
 
-export const GET = async (
-  _req: NextRequest,
-  { params }: GetSizeByIdContext
-) => {
+export const GET = async (_req: Request, { params }: GetSizeByIdContext) => {
   try {
     const { sizeId, storeId } = storeIdParamSchema
       .and(createDynamicPathSchema(sizeIdParamSchema, true))

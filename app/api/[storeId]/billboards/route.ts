@@ -1,5 +1,5 @@
 import { billBoardFormSchema } from '@/app/(dashboard)/[storeId]/(route)/billboards/[billboardId]/(validators)/bill-form-schema';
-import { NextRequest, NextResponse } from 'next/server';
+import { Request, NextResponse } from 'next/server';
 import { TypeOf, ZodError, object, string } from 'zod';
 import {
   billboardIdParamSchema,
@@ -30,10 +30,7 @@ interface CreateStoreContext {
   params: CreateBillBoardParams;
 }
 
-export const POST = async (
-  req: NextRequest,
-  { params }: CreateStoreContext
-) => {
+export const POST = async (req: Request, { params }: CreateStoreContext) => {
   try {
     const { userId } = auth();
     if (!userId) {
@@ -89,10 +86,7 @@ export const POST = async (
   }
 };
 
-export const GET = async (
-  _req: NextRequest,
-  { params }: CreateStoreContext
-) => {
+export const GET = async (_req: Request, { params }: CreateStoreContext) => {
   try {
     const {
       params: { storeId },

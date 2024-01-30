@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { Request, NextResponse } from 'next/server';
 import { ZodError, object } from 'zod';
 import {
   ParamWithColourId,
@@ -44,10 +44,7 @@ interface UpdateColourContext {
   params: ParamWithStoreId & ParamWithProductId;
 }
 
-export const PATCH = async (
-  req: NextRequest,
-  { params }: UpdateColourContext
-) => {
+export const PATCH = async (req: Request, { params }: UpdateColourContext) => {
   try {
     const { userId } = auth();
     if (!userId) {
@@ -142,10 +139,7 @@ interface DeleteColourContext {
   params: ParamWithStoreId & ParamWithColourId;
 }
 
-export const DELETE = async (
-  _: NextRequest,
-  { params }: DeleteColourContext
-) => {
+export const DELETE = async (_: Request, { params }: DeleteColourContext) => {
   try {
     const { userId } = auth();
     if (!userId) {
@@ -201,10 +195,7 @@ interface GetProductByIdContext {
   params: ParamWithStoreId & ParamWithProductId;
 }
 
-export const GET = async (
-  _req: NextRequest,
-  { params }: GetProductByIdContext
-) => {
+export const GET = async (_req: Request, { params }: GetProductByIdContext) => {
   try {
     const { productId, storeId } = currentRouteParams.parse(params);
     const store = await db.query.stores.findFirst({

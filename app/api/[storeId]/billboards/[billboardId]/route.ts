@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { Request, NextResponse } from 'next/server';
 import { TypeOf, ZodError, object } from 'zod';
 import {
   billboardIdParamSchema,
@@ -31,7 +31,7 @@ interface UpdateBillboardContext {
 }
 
 export const PATCH = async (
-  req: NextRequest,
+  req: Request,
   { params }: UpdateBillboardContext
 ) => {
   try {
@@ -91,7 +91,7 @@ interface DeleteBillboardContext {
 }
 
 export const DELETE = async (
-  _: NextRequest,
+  _: Request,
   { params }: DeleteBillboardContext
 ) => {
   try {
@@ -146,7 +146,7 @@ interface GetBillboardByIdContext {
 }
 
 export const GET = async (
-  _req: NextRequest,
+  _req: Request,
   { params }: GetBillboardByIdContext
 ) => {
   try {

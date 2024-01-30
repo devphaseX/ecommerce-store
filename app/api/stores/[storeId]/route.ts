@@ -5,16 +5,13 @@ import { settingsFormSchema } from '@/validators/setting-form';
 import { auth } from '@clerk/nextjs';
 import { eq, sql } from 'drizzle-orm';
 import { UNAUTHORIZED, NOT_FOUND, BAD_REQUEST, CONFLICT } from 'http-status';
-import { NextRequest, NextResponse } from 'next/server';
+import { Request, NextResponse } from 'next/server';
 
 interface UpdateStoreParams extends Pick<DashboardLayoutParams, 'storeId'> {}
 
 type UpdateStoreContext = { params: UpdateStoreParams };
 
-export const PATCH = async (
-  req: NextRequest,
-  { params }: UpdateStoreContext
-) => {
+export const PATCH = async (req: Request, { params }: UpdateStoreContext) => {
   try {
     const { userId } = auth();
     if (!userId) {
@@ -59,10 +56,7 @@ interface DeleteStoreParams extends Pick<DashboardLayoutParams, 'storeId'> {}
 
 type DeleteStoreContext = { params: DeleteStoreParams };
 
-export const DELETE = async (
-  _: NextRequest,
-  { params }: DeleteStoreContext
-) => {
+export const DELETE = async (_: Request, { params }: DeleteStoreContext) => {
   try {
     const { userId } = auth();
     if (!userId) {

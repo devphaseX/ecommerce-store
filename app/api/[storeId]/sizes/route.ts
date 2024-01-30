@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { Request, NextResponse } from 'next/server';
 import { TypeOf, ZodError, object } from 'zod';
 import {
   ParamWithSizeId,
@@ -30,7 +30,7 @@ interface CreateSizeContext {
   params: CreateSizeParams;
 }
 
-export const POST = async (req: NextRequest, { params }: CreateSizeContext) => {
+export const POST = async (req: Request, { params }: CreateSizeContext) => {
   try {
     const { userId } = auth();
     if (!userId) {
@@ -97,10 +97,7 @@ interface GetSizeByIdContext {
   params: ParamWithStoreId & ParamWithSizeId;
 }
 
-export const GET = async (
-  _req: NextRequest,
-  { params }: GetSizeByIdContext
-) => {
+export const GET = async (_req: Request, { params }: GetSizeByIdContext) => {
   try {
     const { storeId } = storeIdParamSchema.parse(params);
 

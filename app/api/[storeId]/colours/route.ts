@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { Request, NextResponse } from 'next/server';
 import { TypeOf, ZodError, object } from 'zod';
 import {
   ParamWithStoreId,
@@ -28,10 +28,7 @@ interface CreateColourContext {
   params: CreateColourParams;
 }
 
-export const POST = async (
-  req: NextRequest,
-  { params }: CreateColourContext
-) => {
+export const POST = async (req: Request, { params }: CreateColourContext) => {
   try {
     const { userId } = auth();
     if (!userId) {
@@ -98,10 +95,7 @@ interface GetColourByIdContext {
   params: ParamWithStoreId;
 }
 
-export const GET = async (
-  _req: NextRequest,
-  { params }: GetColourByIdContext
-) => {
+export const GET = async (_req: Request, { params }: GetColourByIdContext) => {
   try {
     const { storeId } = storeIdParamSchema.parse(params);
 

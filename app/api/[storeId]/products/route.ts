@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { Request, NextResponse } from 'next/server';
 import { TypeOf, ZodError, object } from 'zod';
 import {
   ParamWithCategoryId,
@@ -41,10 +41,7 @@ interface CreateProductContext {
   params: CreateProductParam;
 }
 
-export const POST = async (
-  req: NextRequest,
-  { params }: CreateProductContext
-) => {
+export const POST = async (req: Request, { params }: CreateProductContext) => {
   try {
     const { userId } = auth();
     if (!userId) {
@@ -156,7 +153,7 @@ interface GetProductContext {
   searchParams: GetProductSearchParams;
 }
 
-export const GET = async (req: NextRequest, { params }: GetProductContext) => {
+export const GET = async (req: Request, { params }: GetProductContext) => {
   try {
     const { storeId } = storeIdParamSchema.parse(params);
 
