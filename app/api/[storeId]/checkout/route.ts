@@ -7,6 +7,7 @@ import {
 import {
   BAD_REQUEST,
   CONFLICT,
+  NOT_FOUND,
   UNAUTHORIZED,
   UNPROCESSABLE_ENTITY,
 } from 'http-status';
@@ -48,7 +49,7 @@ export const POST = async (
     });
 
     if (!store) {
-      return new NextResponse('Store not exist', { status: UNAUTHORIZED });
+      return new NextResponse('Store not exist', { status: NOT_FOUND });
     }
 
     const queriedProducts = await db.query.products.findMany({
@@ -56,8 +57,9 @@ export const POST = async (
     });
 
     if (queriedProducts.length !== productsId.length) {
-      const missingProducts = queriedProducts.filter(
-        (product) => !productsId.includes(product.id)
+      const missingProducts = productsId.filter(
+        (productId) =>
+          !queriedProducts.find((product) => product.id === productId)
       );
 
       return new NextResponse(

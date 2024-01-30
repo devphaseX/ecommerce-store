@@ -43,7 +43,6 @@ export async function POST(req: Request) {
   ];
 
   const address = addressComponents.join(', ');
-  console.log({ type: event.type, session });
   if (
     event.type === 'checkout.session.completed' &&
     session?.metadata?.orderId
