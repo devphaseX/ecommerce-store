@@ -7,13 +7,13 @@ import { BillBoard, billBoards } from '@/schema/bill-board';
 import { BillBoardForm } from './components/billboard-form';
 import { string } from 'zod';
 
-interface BillBoardPageContext extends LayoutPageBaseProps {
+interface BillBoardPageProps {
   params: BillBoardParams;
 }
 
 const BillBoardPage = async ({
   params: { billboardId },
-}: BillBoardPageContext) => {
+}: BillBoardPageProps) => {
   const { userId } = auth();
   if (!userId) return redirect('/sign-in');
 

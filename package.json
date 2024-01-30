@@ -62,6 +62,7 @@
   },
   "devDependencies": {
     "drizzle-kit": "^0.19.12",
+    "pg": "^8.11.3",
     "tsconfig-paths": "^4.2.0",
     "tsx": "^3.12.7"
   }
