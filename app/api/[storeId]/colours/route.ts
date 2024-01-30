@@ -1,4 +1,4 @@
-import { Request, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { TypeOf, ZodError, object } from 'zod';
 import {
   ParamWithStoreId,

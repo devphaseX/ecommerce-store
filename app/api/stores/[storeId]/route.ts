@@ -5,7 +5,7 @@ import { settingsFormSchema } from '@/validators/setting-form';
 import { auth } from '@clerk/nextjs';
 import { eq, sql } from 'drizzle-orm';
 import { UNAUTHORIZED, NOT_FOUND, BAD_REQUEST, CONFLICT } from 'http-status';
-import { Request, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 interface UpdateStoreParams extends Pick<DashboardLayoutParams, 'storeId'> {}
 

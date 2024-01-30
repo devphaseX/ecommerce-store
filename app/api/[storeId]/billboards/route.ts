@@ -1,5 +1,5 @@
 import { billBoardFormSchema } from '@/app/(dashboard)/[storeId]/(route)/billboards/[billboardId]/(validators)/bill-form-schema';
-import { Request, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { TypeOf, ZodError, object, string } from 'zod';
 import {
   billboardIdParamSchema,

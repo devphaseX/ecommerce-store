@@ -1,5 +1,5 @@
 import { auth } from '@clerk/nextjs';
-import { Request, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { CONFLICT, UNPROCESSABLE_ENTITY } from 'http-status';
 import { db } from '@/config/db/neon/initialize';
 import { stores } from '@/schema/store';
