@@ -21,7 +21,7 @@ import { DrizzleError, asc, eq, sql } from 'drizzle-orm';
 import { stores } from '@/schema/store';
 import { categories } from '@/schema/category';
 import { sizes } from '@/schema/size';
-import { sizeFormSchema } from '@/app/(dashboard)/[storeId]/(route)/sizes/[sizeId]/(validators)/size-form-schema';
+import { sizeFormSchema } from '@/validators/schema';
 
 const categoryParamsSchema = storeIdParamSchema.and(categoryIdParamSchema);
 type CategoryParams = Expand<TypeOf<typeof categoryParamsSchema>>;
