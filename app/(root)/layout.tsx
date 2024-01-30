@@ -4,7 +4,9 @@ import { db } from '@/config/db/neon/initialize';
 import { eq } from 'drizzle-orm';
 import { stores } from '@/schema/store';
 
-interface SetupLayoutProps extends LayoutPageBaseProps {}
+interface SetupLayoutProps {
+  children: React.ReactNode;
+}
 
 export default async function SetupLayout({ children }: SetupLayoutProps) {
   const { userId } = auth();

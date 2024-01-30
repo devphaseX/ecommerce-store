@@ -12,7 +12,7 @@ import { stores } from '@/schema/store';
 import { Category, categories } from '@/schema/category';
 import { billBoards } from '@/schema/bill-board';
 
-interface CategoryPageContext extends LayoutPageBaseProps {
+interface CategoryPageContext {
   params: CategoryPageParams;
 }
 

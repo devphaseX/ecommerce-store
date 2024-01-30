@@ -1,6 +1,8 @@
-import { FC } from 'react';
+import React, { FC } from 'react';
 
-interface AuthLayoutProps extends LayoutPageBaseProps {}
+interface AuthLayoutProps {
+  children: React.ReactNode;
+}
 
 const AuthLayout: FC<AuthLayoutProps> = ({ children }) => {
   return (

@@ -16,7 +16,7 @@ import { products } from '@/schema/product';
 import { categories } from '@/schema/category';
 import { sizes } from '@/schema/size';
 
-interface ProductPageContext extends LayoutPageBaseProps {
+interface ProductPageContext {
   params: ParamWithStoreId & ParamWithColourId;
 }
 

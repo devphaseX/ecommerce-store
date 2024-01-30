@@ -4,11 +4,13 @@ import { db } from '@/config/db/neon/initialize';
 import { sql } from 'drizzle-orm';
 import { stores } from '@/schema/store';
 import { Navbar } from '@/components/Navbar';
+import React from 'react';
 
 export type DashboardLayoutParams = { storeId: string };
 
-interface DashboardLayoutProps extends LayoutPageBaseProps {
+interface DashboardLayoutProps {
   params: { storeId: string };
+  children: React.ReactNode;
 }
 
 export default async function DashboardLayout({

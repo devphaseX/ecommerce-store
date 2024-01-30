@@ -13,7 +13,7 @@ import {
 } from '@/app/api/(params)/params-schema';
 import { colours } from '@/schema/colour';
 
-interface ColourPageContext extends LayoutPageBaseProps {
+interface ColourPageContext {
   params: ParamWithStoreId & ParamWithColourId;
 }
 
