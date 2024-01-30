@@ -9,12 +9,11 @@ import { stores } from '@/schema/store';
 import { orderItems, orders, products } from '@/schema/index';
 
 export const revalidate = 0;
-interface OrderPageContext {
+interface OrderPageProps {
   params: ParamWithStoreId;
-  url: string;
 }
 
-const OrdersPage = async ({ params: { storeId } }: OrderPageContext) => {
+const OrdersPage = async ({ params: { storeId } }: OrderPageProps) => {
   const { userId } = auth();
 
   if (!userId) return redirect('/sign-in');

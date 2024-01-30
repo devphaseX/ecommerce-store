@@ -11,7 +11,6 @@ import { ResponseProduct, categories, products } from '@/schema/index';
 
 interface ProductPageContext {
   params: ParamWithStoreId;
-  url: string;
 }
 
 const ProductPage = async ({ params: { storeId } }: ProductPageContext) => {
