@@ -1,6 +1,6 @@
 import { authMiddleware } from '@clerk/nextjs';
 
-export const runtime = 'node';
+export const runtime = 'nodejs';
 // This example protects all routes including api/trpc routes
 // Please edit this to allow other routes to be public as needed.
 // See https://clerk.com/docs/nextjs/middleware for more information about configuring your middleware
