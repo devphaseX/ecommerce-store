@@ -26,11 +26,11 @@ type CreateBillBoardParams = Expand<
   TypeOf<typeof createBillboardSchema>['params']
 >;
 
-interface CreateStoreContext {
+interface CreateStoreProps {
   params: CreateBillBoardParams;
 }
 
-export const POST = async (req: Request, { params }: CreateStoreContext) => {
+export const POST = async (req: Request, { params }: CreateStoreProps) => {
   try {
     const { userId } = auth();
     if (!userId) {
@@ -86,7 +86,7 @@ export const POST = async (req: Request, { params }: CreateStoreContext) => {
   }
 };
 
-export const GET = async (_req: Request, { params }: CreateStoreContext) => {
+export const GET = async (_req: Request, { params }: CreateStoreProps) => {
   try {
     const {
       params: { storeId },
