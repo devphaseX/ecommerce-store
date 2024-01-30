@@ -16,11 +16,7 @@ import { db } from '@/config/db/neon/initialize';
 import { stores } from '@/schema/store';
 import { DrizzleError, asc, eq, sql } from 'drizzle-orm';
 import { billBoards } from '@/schema/bill-board';
-
-export const createBillboardSchema = object({
-  params: storeIdParamSchema,
-  body: billBoardFormSchema,
-});
+import { createBillboardSchema } from '@/validators/billboard';
 
 type CreateBillBoardParams = Expand<
   TypeOf<typeof createBillboardSchema>['params']

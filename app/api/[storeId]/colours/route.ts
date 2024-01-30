@@ -16,11 +16,7 @@ import { stores } from '@/schema/store';
 import { DrizzleError, asc, eq, sql } from 'drizzle-orm';
 import { colours, requestColourCreateSchema } from '@/schema/colour';
 import { ColourColumns } from '@/app/(dashboard)/[storeId]/(route)/colours/components/column';
-
-export const createColourSchema = object({
-  params: storeIdParamSchema,
-  body: requestColourCreateSchema,
-});
+import { createColourSchema } from '@/validators/schema';
 
 type CreateColourParams = Expand<TypeOf<typeof createColourSchema>['params']>;
 

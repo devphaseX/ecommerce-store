@@ -18,11 +18,7 @@ import { DrizzleError, asc, eq, sql } from 'drizzle-orm';
 
 import { requestSizeCreateSchema, sizes } from '@/schema/size';
 import { SizeColumns } from '@/app/(dashboard)/[storeId]/(route)/sizes/components/column';
-
-export const createSizeSchema = object({
-  params: storeIdParamSchema,
-  body: requestSizeCreateSchema,
-});
+import { createSizeSchema } from '@/validators/schema';
 
 type CreateSizeParams = Expand<TypeOf<typeof createSizeSchema>['params']>;
 

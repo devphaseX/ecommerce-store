@@ -14,11 +14,7 @@ import { DrizzleError, asc, sql } from 'drizzle-orm';
 import { billBoards } from '@/schema/bill-board';
 import { categoryFormSchema } from '@/app/(dashboard)/[storeId]/(route)/categories/[categoryId]/(validators)/category-form-schema';
 import { categories } from '@/schema/category';
-
-export const createBillboardSchema = object({
-  params: storeIdParamSchema,
-  body: categoryFormSchema,
-});
+import { createBillboardSchema } from '@/validators/schema';
 
 type CreateCategoryParams = Expand<
   TypeOf<typeof createBillboardSchema>['params']

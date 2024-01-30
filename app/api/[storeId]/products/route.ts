@@ -27,11 +27,7 @@ import {
 import { categories } from '@/schema/category';
 import { sizes } from '@/schema/size';
 import { Image, images } from '@/schema/image';
-
-export const createProductRouteSchema = object({
-  params: storeIdParamSchema,
-  body: createProductSchema,
-});
+import { createProductRouteSchema } from '@/validators/schema';
 
 type CreateProductParam = Expand<
   NonNullable<TypeOf<typeof createProductRouteSchema>['params']>
