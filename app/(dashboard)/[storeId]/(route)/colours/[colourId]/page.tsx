@@ -21,6 +21,8 @@ const pageParamSchema = storeIdParamSchema.and(
   createDynamicPathSchema(colourIdParamSchema)
 );
 
+export const dynamic = 'force-dynamic';
+
 const ColourPage = async ({ params }: ColourPageContext) => {
   const { userId } = auth();
   if (!userId) return redirect('/sign-in');

@@ -13,6 +13,8 @@ interface ProductPageContext {
   params: ParamWithStoreId;
 }
 
+export const dynamic = 'force-dynamic';
+
 const ProductPage = async ({ params: { storeId } }: ProductPageContext) => {
   const { userId } = auth();
 

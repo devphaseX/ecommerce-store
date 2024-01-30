@@ -13,6 +13,8 @@ interface ColourPageContext {
   params: ParamWithStoreId;
 }
 
+export const dynamic = 'force-dynamic';
+
 const ColourPage = async ({ params: { storeId } }: ColourPageContext) => {
   const { userId } = auth();
 

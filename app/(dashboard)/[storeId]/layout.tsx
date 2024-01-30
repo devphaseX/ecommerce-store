@@ -6,6 +6,8 @@ import { stores } from '@/schema/store';
 import { Navbar } from '@/components/Navbar';
 import React from 'react';
 
+export const dynamic = 'force-dynamic';
+
 export type DashboardLayoutParams = { storeId: string };
 
 interface DashboardLayoutProps {

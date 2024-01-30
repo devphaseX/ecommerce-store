@@ -23,7 +23,9 @@ import { categories } from '@/schema/category';
 import { sizes } from '@/schema/size';
 import { sizeFormSchema } from '@/validators/schema';
 
-const categoryParamsSchema = storeIdParamSchema.and(categoryIdParamSchema);
+const categoryParamsSchema = storeIdParamSchema.and(
+  categoryIdParamSchema(true)
+);
 type CategoryParams = Expand<TypeOf<typeof categoryParamsSchema>>;
 
 const updateSizeSchema = object({

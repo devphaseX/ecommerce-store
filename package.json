@@ -9,6 +9,7 @@
     "lint": "next lint",
     "db:generate": "drizzle-kit generate:pg",
     "db:drop": "drizzle-kit drop",
+    "db:push": "drizzle-kit push:pg",
     "db:reset": "tsx -r tsconfig-paths/register ./config/db/neon/clearDb.ts",
     "db:migrate": "tsx -r tsconfig-paths/register ./config/db/neon/migrate.ts"
   },

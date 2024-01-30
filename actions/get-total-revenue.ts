@@ -3,7 +3,7 @@ import { Stores, orderItems, orders, products } from '../schema';
 import { eq, sql } from 'drizzle-orm';
 
 const getTotalRevenue = async (storeId: Stores['id']) => {
-  const [{ totalRevenue }] = await db
+  const [{ totalRevenue } = { totalRevenue: 0 }] = await db
     .select({ totalRevenue: sql<number>`sum(${products.price})` })
     .from(orders)
     .where(

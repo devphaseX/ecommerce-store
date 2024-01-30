@@ -11,6 +11,7 @@ import { billBoardRelations, billBoards } from '@/schema/bill-board';
 interface BillboardsPageContext {
   params: ParamWithStoreId;
 }
+export const dynamic = 'force-dynamic';
 
 const CategoriesPage = async ({
   params: { storeId },

@@ -19,6 +19,8 @@ interface DashboardPageProps extends PageBaseProps {
   params: { storeId: string };
 }
 
+export const dynamic = 'force-dynamic';
+
 const DashboardPage: FC<DashboardPageProps> = async ({ params }) => {
   const { userId } = auth();
   if (!userId) return redirect('/sign-in');

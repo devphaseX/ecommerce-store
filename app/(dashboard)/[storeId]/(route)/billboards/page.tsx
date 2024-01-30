@@ -6,6 +6,7 @@ import { db } from '@/config/db/neon/initialize';
 import { and, asc, eq, sql } from 'drizzle-orm';
 import { stores } from '@/schema/store';
 import { billBoards } from '@/schema/bill-board';
+export const dynamic = 'force-dynamic';
 
 interface BillboardsPageContext {
   params: ParamWithStoreId;

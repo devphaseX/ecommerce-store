@@ -11,6 +11,7 @@ import { SizeColumns } from './components/column';
 interface SizesPageContext {
   params: ParamWithStoreId;
 }
+export const dynamic = 'force-dynamic';
 
 const SizesPage = async ({ params: { storeId } }: SizesPageContext) => {
   const { userId } = auth();

@@ -16,6 +16,8 @@ interface CategoryPageContext {
   params: CategoryPageParams;
 }
 
+export const dynamic = 'force-dynamic';
+
 const CategoryPage = async ({ params }: CategoryPageContext) => {
   const { userId } = auth();
   if (!userId) return redirect('/sign-in');

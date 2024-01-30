@@ -10,6 +10,7 @@ import { string } from 'zod';
 interface BillBoardPageProps {
   params: BillBoardParams;
 }
+export const dynamic = 'force-dynamic';
 
 const BillBoardPage = async ({
   params: { billboardId },
