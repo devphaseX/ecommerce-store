@@ -24,11 +24,11 @@ type CreateCategoryParams = Expand<
   TypeOf<typeof createBillboardSchema>['params']
 >;
 
-interface CreateCategoryContext {
+interface CreateCategoryProps {
   params: CreateCategoryParams;
 }
 
-export const POST = async (req: Request, { params }: CreateCategoryContext) => {
+export const POST = async (req: Request, { params }: CreateCategoryProps) => {
   try {
     const { userId } = auth();
     if (!userId) {
@@ -103,7 +103,7 @@ export const POST = async (req: Request, { params }: CreateCategoryContext) => {
   }
 };
 
-export const GET = async (_req: Request, { params }: CreateCategoryContext) => {
+export const GET = async (_req: Request, { params }: CreateCategoryProps) => {
   try {
     const {
       params: { storeId },

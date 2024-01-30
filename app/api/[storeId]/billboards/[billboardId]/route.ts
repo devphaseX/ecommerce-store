@@ -26,14 +26,11 @@ const updateBillboardSchema = object({
   body: billBoardFormSchema,
 });
 
-interface UpdateBillboardContext {
+interface UpdateBillboardProps {
   params: BillBoardRequestParams;
 }
 
-export const PATCH = async (
-  req: Request,
-  { params }: UpdateBillboardContext
-) => {
+export const PATCH = async (req: Request, { params }: UpdateBillboardProps) => {
   try {
     const { userId } = auth();
     if (!userId) {
@@ -86,14 +83,11 @@ export const PATCH = async (
   }
 };
 
-interface DeleteBillboardContext {
+interface DeleteBillboardProps {
   params: BillBoardRequestParams;
 }
 
-export const DELETE = async (
-  _: Request,
-  { params }: DeleteBillboardContext
-) => {
+export const DELETE = async (_: Request, { params }: DeleteBillboardProps) => {
   try {
     const { userId } = auth();
     if (!userId) {
@@ -141,14 +135,11 @@ export const DELETE = async (
   }
 };
 
-interface GetBillboardByIdContext {
+interface GetBillboardByIdProps {
   params: BillBoardRequestParams;
 }
 
-export const GET = async (
-  _req: Request,
-  { params }: GetBillboardByIdContext
-) => {
+export const GET = async (_req: Request, { params }: GetBillboardByIdProps) => {
   try {
     const { billboardId, storeId } = billboardParamsSchema.parse(params);
 

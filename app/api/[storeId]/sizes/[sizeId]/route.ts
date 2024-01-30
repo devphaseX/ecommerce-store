@@ -33,14 +33,11 @@ const updateSizeSchema = object({
   body: sizeFormSchema,
 });
 
-interface UpdateCategoryContext {
+interface UpdateCategoryProps {
   params: CategoryParams;
 }
 
-export const PATCH = async (
-  req: Request,
-  { params }: UpdateCategoryContext
-) => {
+export const PATCH = async (req: Request, { params }: UpdateCategoryProps) => {
   try {
     const { userId } = auth();
     if (!userId) {
@@ -101,11 +98,11 @@ export const PATCH = async (
   }
 };
 
-interface DeleteSizeContext {
+interface DeleteSizeProps {
   params: ParamWithStoreId & ParamWithSizeId;
 }
 
-export const DELETE = async (_: Request, { params }: DeleteSizeContext) => {
+export const DELETE = async (_: Request, { params }: DeleteSizeProps) => {
   try {
     const { userId } = auth();
     if (!userId) {
@@ -159,11 +156,11 @@ export const DELETE = async (_: Request, { params }: DeleteSizeContext) => {
   }
 };
 
-interface GetSizeByIdContext {
+interface GetSizeByIdProps {
   params: ParamWithStoreId & ParamWithSizeId;
 }
 
-export const GET = async (_req: Request, { params }: GetSizeByIdContext) => {
+export const GET = async (_req: Request, { params }: GetSizeByIdProps) => {
   try {
     const { sizeId, storeId } = storeIdParamSchema
       .and(createDynamicPathSchema(sizeIdParamSchema, true))

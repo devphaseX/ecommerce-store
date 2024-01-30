@@ -40,11 +40,11 @@ const updateProductPayloadSchema = object({
   body: createProductSchema,
 });
 
-interface UpdateColourContext {
+interface UpdateColourProps {
   params: ParamWithStoreId & ParamWithProductId;
 }
 
-export const PATCH = async (req: Request, { params }: UpdateColourContext) => {
+export const PATCH = async (req: Request, { params }: UpdateColourProps) => {
   try {
     const { userId } = auth();
     if (!userId) {
@@ -135,11 +135,11 @@ export const PATCH = async (req: Request, { params }: UpdateColourContext) => {
   }
 };
 
-interface DeleteColourContext {
+interface DeleteColourProps {
   params: ParamWithStoreId & ParamWithColourId;
 }
 
-export const DELETE = async (_: Request, { params }: DeleteColourContext) => {
+export const DELETE = async (_: Request, { params }: DeleteColourProps) => {
   try {
     const { userId } = auth();
     if (!userId) {
@@ -191,11 +191,11 @@ export const DELETE = async (_: Request, { params }: DeleteColourContext) => {
   }
 };
 
-interface GetProductByIdContext {
+interface GetProductByIdProps {
   params: ParamWithStoreId & ParamWithProductId;
 }
 
-export const GET = async (_req: Request, { params }: GetProductByIdContext) => {
+export const GET = async (_req: Request, { params }: GetProductByIdProps) => {
   try {
     const { productId, storeId } = currentRouteParams.parse(params);
     const store = await db.query.stores.findFirst({

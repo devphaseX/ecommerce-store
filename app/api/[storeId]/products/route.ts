@@ -37,11 +37,11 @@ type CreateProductParam = Expand<
   NonNullable<TypeOf<typeof createProductRouteSchema>['params']>
 >;
 
-interface CreateProductContext {
+interface CreateProductProps {
   params: CreateProductParam;
 }
 
-export const POST = async (req: Request, { params }: CreateProductContext) => {
+export const POST = async (req: Request, { params }: CreateProductProps) => {
   try {
     const { userId } = auth();
     if (!userId) {
@@ -148,12 +148,12 @@ interface GetProductSearchParams
   isArchieved?: boolean;
   productSuggestedId?: string;
 }
-interface GetProductContext {
+interface GetProductProps {
   params: ParamWithStoreId;
   searchParams: GetProductSearchParams;
 }
 
-export const GET = async (req: Request, { params }: GetProductContext) => {
+export const GET = async (req: Request, { params }: GetProductProps) => {
   try {
     const { storeId } = storeIdParamSchema.parse(params);
 

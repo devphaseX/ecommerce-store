@@ -24,11 +24,11 @@ export const createColourSchema = object({
 
 type CreateColourParams = Expand<TypeOf<typeof createColourSchema>['params']>;
 
-interface CreateColourContext {
+interface CreateColourProps {
   params: CreateColourParams;
 }
 
-export const POST = async (req: Request, { params }: CreateColourContext) => {
+export const POST = async (req: Request, { params }: CreateColourProps) => {
   try {
     const { userId } = auth();
     if (!userId) {
@@ -91,11 +91,11 @@ export const POST = async (req: Request, { params }: CreateColourContext) => {
   }
 };
 
-interface GetColourByIdContext {
+interface GetColourByIdProps {
   params: ParamWithStoreId;
 }
 
-export const GET = async (_req: Request, { params }: GetColourByIdContext) => {
+export const GET = async (_req: Request, { params }: GetColourByIdProps) => {
   try {
     const { storeId } = storeIdParamSchema.parse(params);
 

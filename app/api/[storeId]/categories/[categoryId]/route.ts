@@ -27,14 +27,11 @@ const updateCategorySchema = object({
   body: categoryFormSchema,
 });
 
-interface UpdateCategoryContext {
+interface UpdateCategoryProps {
   params: CategoryParams;
 }
 
-export const PATCH = async (
-  req: Request,
-  { params }: UpdateCategoryContext
-) => {
+export const PATCH = async (req: Request, { params }: UpdateCategoryProps) => {
   try {
     const { userId } = auth();
     if (!userId) {
@@ -107,14 +104,11 @@ export const PATCH = async (
   }
 };
 
-interface DeleteBillboardContext {
+interface DeleteBillboardProps {
   params: CategoryParams;
 }
 
-export const DELETE = async (
-  _: Request,
-  { params }: DeleteBillboardContext
-) => {
+export const DELETE = async (_: Request, { params }: DeleteBillboardProps) => {
   try {
     const { userId } = auth();
     if (!userId) {
@@ -162,14 +156,11 @@ export const DELETE = async (
   }
 };
 
-interface GetBillboardByIdContext {
+interface GetBillboardByIdProps {
   params: CategoryParams;
 }
 
-export const GET = async (
-  _req: Request,
-  { params }: GetBillboardByIdContext
-) => {
+export const GET = async (_req: Request, { params }: GetBillboardByIdProps) => {
   try {
     const { categoryId, storeId } = categoryParamsSchema.parse(params);
 

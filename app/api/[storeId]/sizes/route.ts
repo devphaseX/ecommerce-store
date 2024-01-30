@@ -26,11 +26,11 @@ export const createSizeSchema = object({
 
 type CreateSizeParams = Expand<TypeOf<typeof createSizeSchema>['params']>;
 
-interface CreateSizeContext {
+interface CreateSizeProps {
   params: CreateSizeParams;
 }
 
-export const POST = async (req: Request, { params }: CreateSizeContext) => {
+export const POST = async (req: Request, { params }: CreateSizeProps) => {
   try {
     const { userId } = auth();
     if (!userId) {
@@ -93,11 +93,11 @@ export const POST = async (req: Request, { params }: CreateSizeContext) => {
   }
 };
 
-interface GetSizeByIdContext {
+interface GetSizeByIdProps {
   params: ParamWithStoreId & ParamWithSizeId;
 }
 
-export const GET = async (_req: Request, { params }: GetSizeByIdContext) => {
+export const GET = async (_req: Request, { params }: GetSizeByIdProps) => {
   try {
     const { storeId } = storeIdParamSchema.parse(params);
 

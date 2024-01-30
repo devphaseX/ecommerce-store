@@ -9,9 +9,9 @@ import { Request, NextResponse } from 'next/server';
 
 interface UpdateStoreParams extends Pick<DashboardLayoutParams, 'storeId'> {}
 
-type UpdateStoreContext = { params: UpdateStoreParams };
+type UpdateStoreProps = { params: UpdateStoreParams };
 
-export const PATCH = async (req: Request, { params }: UpdateStoreContext) => {
+export const PATCH = async (req: Request, { params }: UpdateStoreProps) => {
   try {
     const { userId } = auth();
     if (!userId) {
@@ -54,9 +54,9 @@ export const PATCH = async (req: Request, { params }: UpdateStoreContext) => {
 
 interface DeleteStoreParams extends Pick<DashboardLayoutParams, 'storeId'> {}
 
-type DeleteStoreContext = { params: DeleteStoreParams };
+type DeleteStoreProps = { params: DeleteStoreParams };
 
-export const DELETE = async (_: Request, { params }: DeleteStoreContext) => {
+export const DELETE = async (_: Request, { params }: DeleteStoreProps) => {
   try {
     const { userId } = auth();
     if (!userId) {
