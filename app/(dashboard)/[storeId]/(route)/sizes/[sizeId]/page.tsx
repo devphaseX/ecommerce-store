@@ -12,7 +12,7 @@ import {
 } from '@/app/api/(params)/params-schema';
 import { sizes } from '@/schema/size';
 
-interface SizePageContext extends LayoutPageBaseProps {
+interface SizePageContext {
   params: BillBoardParams;
 }
 
