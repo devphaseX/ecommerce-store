@@ -19,7 +19,7 @@ export const useDeleteCategory = (option: UseDeleteCategoryOption) => {
   } = useMutation({
     mutationFn: async () => {
       if (storeId && categoryId) {
-        return axios.delete(`/api/${storeId}/categories/${categoryId}`);
+        return axios.delete(`/api/stores/${storeId}/categories/${categoryId}`);
       }
     },
     onSuccess: () => {

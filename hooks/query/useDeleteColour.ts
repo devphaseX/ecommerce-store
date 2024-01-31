@@ -21,7 +21,8 @@ export const useDeleteColour = ({
   onSettled,
 }: useDeleteColourProps) => {
   const { mutate: onDeleteColour, isLoading: colourDeleting } = useMutation({
-    mutationFn: () => axios.delete(`/api/${storeId}/colours/${colourId}`),
+    mutationFn: () =>
+      axios.delete(`/api/stores/${storeId}/colours/${colourId}`),
     onSuccess: () => {
       toast.success('Colour delete successfully');
       onSuccess?.();

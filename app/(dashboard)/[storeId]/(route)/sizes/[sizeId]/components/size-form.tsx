@@ -68,11 +68,14 @@ export const SizeForm: React.FC<SizeProps> = ({ toUpdateSize }) => {
 
       if (toUpdateSize) {
         response = await axios.patch<Sizes>(
-          `/api/${storeId}/sizes/${sizeId}`,
+          `/api/stores/${storeId}/sizes/${sizeId}`,
           data
         );
       } else {
-        response = await axios.post<Sizes>(`/api/${storeId}/sizes/`, data);
+        response = await axios.post<Sizes>(
+          `/api/stores/${storeId}/sizes/`,
+          data
+        );
       }
       return response.data;
     },

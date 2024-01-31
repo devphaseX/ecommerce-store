@@ -23,7 +23,7 @@ export const useDeleteSize = ({
 }: useDeleteSizeProps) => {
   const router = useRouter();
   const { mutate: onDeleteSize, isLoading: sizeDeleting } = useMutation({
-    mutationFn: () => axios.delete(`/api/${storeId}/sizes/${sizeId}`),
+    mutationFn: () => axios.delete(`/api/stores/${storeId}/sizes/${sizeId}`),
     onSuccess: () => {
       toast.success('Size delete successfully');
       onSuccess?.();

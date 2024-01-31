@@ -70,12 +70,12 @@ export const BillBoardForm: React.FC<BillBoardFormProps> = ({
 
       if (initialBillBoard) {
         response = await axios.patch<BillBoard>(
-          `/api/${storeId}/billboards/${billboardId}`,
+          `/api/stores/${storeId}/billboards/${billboardId}`,
           data
         );
       } else {
         response = await axios.post<BillBoard>(
-          `/api/${storeId}/billboards/`,
+          `/api/stores/${storeId}/billboards/`,
           data
         );
       }

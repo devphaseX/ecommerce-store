@@ -21,7 +21,7 @@ export const useDeleteBillboard = ({
   const { mutate: onDeleteBillboard, isLoading: billboardDeleting } =
     useMutation({
       mutationFn: () =>
-        axios.delete(`/api/${storeId}/billboards/${billboardId}`),
+        axios.delete(`/api/stores/${storeId}/billboards/${billboardId}`),
       onSuccess: () => {
         toast.success('billboard delete successfully');
         onSuccess?.();

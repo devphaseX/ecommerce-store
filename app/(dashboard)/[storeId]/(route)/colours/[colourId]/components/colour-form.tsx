@@ -66,11 +66,14 @@ export const ColourForm: React.FC<ColourProps> = ({ toUpdateColour }) => {
 
       if (toUpdateColour) {
         response = await axios.patch<Colours>(
-          `/api/${storeId}/colours/${colourId}`,
+          `/api/stores/${storeId}/colours/${colourId}`,
           data
         );
       } else {
-        response = await axios.post<Colours>(`/api/${storeId}/colours/`, data);
+        response = await axios.post<Colours>(
+          `/api/stores/${storeId}/colours/`,
+          data
+        );
       }
       return response.data;
     },

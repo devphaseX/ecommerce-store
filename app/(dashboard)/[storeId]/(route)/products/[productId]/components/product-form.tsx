@@ -95,15 +95,14 @@ export const ProductForm: React.FC<ProductProps> = ({
   } = useMutation({
     mutationFn: async (data: CreateProduct) => {
       let response: AxiosResponse<Products>;
-      console.log({ data });
       if (toUpdateProduct) {
         response = await axios.patch<Products>(
-          `/api/${storeId}/products/${productId}`,
+          `/api/stores/${storeId}/products/${productId}`,
           data
         );
       } else {
         response = await axios.post<Products>(
-          `/api/${storeId}/products/`,
+          `/api/stores/${storeId}/products/`,
           data
         );
       }

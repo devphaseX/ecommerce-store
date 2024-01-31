@@ -21,7 +21,9 @@ export const useDeleteItem = ({
   const { isLoading, mutate } = useMutation({
     mutationFn: async () => {
       if (storeId && routeName && itemPathName) {
-        return axios.delete(`/api/${storeId}/${routeName}/${itemPathName}`);
+        return axios.delete(
+          `/api/stores/${storeId}/${routeName}/${itemPathName}`
+        );
       }
     },
     onSuccess: () => {
