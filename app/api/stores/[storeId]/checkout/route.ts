@@ -40,9 +40,16 @@ export const POST = async (
   try {
     !storeIdParamSchema.parse(params);
 
-    const productsId = object({ productIds: array(string()) }).parse(
-      await req.json()
-    ).productIds;
+    const {
+      productIds,
+      callbackUrls: { confirmationUrl, cancellationUrl },
+    } = object({
+      productIds: array(string()),
+      callbackUrls: object({
+        confirmationUrl: string().url(),
+        cancellationUrl: string().url(),
+      }),
+    }).parse(await req.json());
 
     const store = await db.query.stores.findFirst({
       where: eq(stores.id, params.storeId),
@@ -53,11 +60,11 @@ export const POST = async (
     }
 
     const queriedProducts = await db.query.products.findMany({
-      where: inArray(products.id, productsId),
+      where: inArray(products.id, productIds),
     });
 
-    if (queriedProducts.length !== productsId.length) {
-      const missingProducts = productsId.filter(
+    if (queriedProducts.length !== productIds.length) {
+      const missingProducts = productIds.filter(
         (productId) =>
           !queriedProducts.find((product) => product.id === productId)
       );
@@ -79,7 +86,7 @@ export const POST = async (
       const queriedOrders = await db.query.orders.findMany({
         where: eq(orders.storeId, params.storeId),
         with: {
-          orderItems: { where: inArray(orderItems.productId, productsId) },
+          orderItems: { where: inArray(orderItems.productId, productIds) },
         },
 
         orderBy: sql`${orders.createdAt} desc`,
@@ -89,7 +96,7 @@ export const POST = async (
         queriedOrders.find(
           (order) =>
             (order.orderItems.every((item) =>
-              productsId.find((pId) => item.productId === pId)
+              productIds.find((pId) => item.productId === pId)
             ) &&
               !order.createdAt) ||
             Date.now() - order.createdAt!.getTime() < 2 * 60 * 1000
@@ -128,8 +135,8 @@ export const POST = async (
       mode: 'payment',
       billing_address_collection: 'required',
       phone_number_collection: { enabled: true },
-      success_url: `${parsedEnv.FRONTEND_STORE_URL}/carts?success=1`,
-      cancel_url: `${parsedEnv.FRONTEND_STORE_URL}/carts?cancelled=1`,
+      success_url: confirmationUrl,
+      cancel_url: cancellationUrl,
       metadata: {
         orderId: order.id,
       },
