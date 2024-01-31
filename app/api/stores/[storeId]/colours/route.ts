@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server';
 import { TypeOf, ZodError, object } from 'zod';
 import {
-  ParamWithSizeId,
   ParamWithStoreId,
   storeIdParamSchema,
-} from '../../(params)/params-schema';
+} from '../../../(params)/params-schema';
 import { auth } from '@clerk/nextjs';
 import {
   BAD_REQUEST,
@@ -15,18 +14,17 @@ import {
 import { db } from '@/config/db/neon/initialize';
 import { stores } from '@/schema/store';
 import { DrizzleError, asc, eq, sql } from 'drizzle-orm';
+import { colours, requestColourCreateSchema } from '@/schema/colour';
+import { ColourColumns } from '@/app/(dashboard)/[storeId]/(route)/colours/components/column';
+import { createColourSchema } from '@/validators/schema';
 
-import { requestSizeCreateSchema, sizes } from '@/schema/size';
-import { SizeColumns } from '@/app/(dashboard)/[storeId]/(route)/sizes/components/column';
-import { createSizeSchema } from '@/validators/schema';
+type CreateColourParams = Expand<TypeOf<typeof createColourSchema>['params']>;
 
-type CreateSizeParams = Expand<TypeOf<typeof createSizeSchema>['params']>;
-
-interface CreateSizeProps {
-  params: CreateSizeParams;
+interface CreateColourProps {
+  params: CreateColourParams;
 }
 
-export const POST = async (req: Request, { params }: CreateSizeProps) => {
+export const POST = async (req: Request, { params }: CreateColourProps) => {
   try {
     const { userId } = auth();
     if (!userId) {
@@ -36,7 +34,7 @@ export const POST = async (req: Request, { params }: CreateSizeProps) => {
     const {
       body: { name, value },
       params: { storeId },
-    } = createSizeSchema.parse({
+    } = createColourSchema.parse({
       params,
       body: await req.json(),
     });
@@ -58,14 +56,14 @@ export const POST = async (req: Request, { params }: CreateSizeProps) => {
       return new NextResponse('Unauthorized', { status: UNAUTHORIZED });
     }
 
-    const size = await db
-      .insert(sizes)
+    const colour = await db
+      .insert(colours)
       .values({ name, value, storeId })
       .returning();
 
-    return NextResponse.json(size);
+    return NextResponse.json(colour);
   } catch (e) {
-    console.log('[POST SIZE]', JSON.stringify(e));
+    console.log('[POST COLOUR]', JSON.stringify(e));
     if (e instanceof ZodError) {
       const pathIssue = e.issues.find(({ path }) => path.includes('query'));
 
@@ -77,10 +75,10 @@ export const POST = async (req: Request, { params }: CreateSizeProps) => {
 
     if (e instanceof DrizzleError) {
       if (e.message.match(/duplicate/i)) {
-        return new NextResponse('Size already exist', { status: CONFLICT });
+        return new NextResponse('Colour already exist', { status: CONFLICT });
       }
 
-      return new NextResponse('Failed to create size', {
+      return new NextResponse('Failed to create colour', {
         status: UNPROCESSABLE_ENTITY,
       });
     }
@@ -89,28 +87,28 @@ export const POST = async (req: Request, { params }: CreateSizeProps) => {
   }
 };
 
-interface GetSizeByIdProps {
-  params: ParamWithStoreId & ParamWithSizeId;
+interface GetColourByIdProps {
+  params: ParamWithStoreId;
 }
 
-export const GET = async (_req: Request, { params }: GetSizeByIdProps) => {
+export const GET = async (_req: Request, { params }: GetColourByIdProps) => {
   try {
     const { storeId } = storeIdParamSchema.parse(params);
 
-    const queriedSizes = await db
+    const queriedColours = await db
       .select({
-        id: sizes.id,
-        name: sizes.name,
-        value: sizes.value,
-        createdAt: sql<string>`to_char(${sizes.createdAt},'Month ddth, yyyy')`,
-      } satisfies Record<keyof SizeColumns, unknown>)
-      .from(sizes)
-      .where(eq(sizes.storeId, storeId))
-      .orderBy(asc(sizes.createdAt));
+        id: colours.id,
+        name: colours.name,
+        value: colours.value,
+        createdAt: sql<string>`to_char(${colours.createdAt},'Month ddth, yyyy')`,
+      } satisfies Record<keyof ColourColumns, unknown>)
+      .from(colours)
+      .where(eq(colours.storeId, storeId))
+      .orderBy(asc(colours.createdAt));
 
-    return NextResponse.json(queriedSizes);
+    return NextResponse.json(queriedColours);
   } catch (e) {
-    console.log('[GET_SIZES]', e);
+    console.log('[GET_COLOUR]', e);
 
     if (e instanceof ZodError) {
       const pathIssue = e.issues.find(({ path }) => path.includes('query'));

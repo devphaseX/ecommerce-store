@@ -39,6 +39,10 @@ const OrdersPage = async ({ params: { storeId } }: OrderPageProps) => {
       .from(orders)
       .innerJoin(orderItems, eq(orderItems.orderId, orders.id))
       .innerJoin(products, eq(orderItems.productId, products.id))
+      .innerJoin(stores, eq(orders.storeId, stores.id))
+      .where(
+        sql`${orders.storeId} = ${storeId} AND ${stores.userId} = ${userId}`
+      )
       .groupBy(orders.id),
   ]);
 

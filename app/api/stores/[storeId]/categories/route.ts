@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { TypeOf, ZodError, object } from 'zod';
-import { storeIdParamSchema } from '../../(params)/params-schema';
+import { storeIdParamSchema } from '../../../(params)/params-schema';
 import { auth } from '@clerk/nextjs';
 import {
   BAD_REQUEST,

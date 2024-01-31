@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import {
   ParamWithStoreId,
   storeIdParamSchema,
-} from '../../(params)/params-schema';
+} from '../../../(params)/params-schema';
 import {
   BAD_REQUEST,
   CONFLICT,

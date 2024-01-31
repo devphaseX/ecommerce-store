@@ -6,7 +6,7 @@ import {
   ParamWithSizeId,
   ParamWithStoreId,
   storeIdParamSchema,
-} from '../../(params)/params-schema';
+} from '../../../(params)/params-schema';
 import { auth } from '@clerk/nextjs';
 import {
   BAD_REQUEST,

@@ -4,7 +4,7 @@ import { TypeOf, ZodError, object, string } from 'zod';
 import {
   billboardIdParamSchema,
   storeIdParamSchema,
-} from '../../(params)/params-schema';
+} from '../../../(params)/params-schema';
 import { auth } from '@clerk/nextjs';
 import {
   BAD_REQUEST,
@@ -14,7 +14,7 @@ import {
 } from 'http-status';
 import { db } from '@/config/db/neon/initialize';
 import { stores } from '@/schema/store';
-import { DrizzleError, asc, eq, sql } from 'drizzle-orm';
+import { DrizzleError, asc, desc, eq, sql } from 'drizzle-orm';
 import { billBoards } from '@/schema/bill-board';
 import { createBillboardSchema } from '@/validators/billboard';
 
@@ -82,7 +82,13 @@ export const POST = async (req: Request, { params }: CreateStoreProps) => {
   }
 };
 
-export const GET = async (_req: Request, { params }: CreateStoreProps) => {
+export const GET = async (
+  _req: Request,
+  {
+    params,
+    searchParams,
+  }: CreateStoreProps & { searchParams: { orderBy: 'asc' | 'desc' } }
+) => {
   try {
     const {
       params: { storeId },
@@ -99,6 +105,7 @@ export const GET = async (_req: Request, { params }: CreateStoreProps) => {
       });
     }
 
+    const { orderBy = 'asc' } = searchParams ?? {};
     const billboards = await db
       .select({
         id: billBoards.id,
@@ -108,7 +115,11 @@ export const GET = async (_req: Request, { params }: CreateStoreProps) => {
       })
       .from(billBoards)
       .where(eq(billBoards.storeId, storeId))
-      .orderBy(asc(billBoards.createdAt));
+      .orderBy(
+        orderBy === 'asc'
+          ? asc(billBoards.createdAt)
+          : desc(billBoards.createdAt)
+      );
 
     return NextResponse.json(billboards);
   } catch (e) {
